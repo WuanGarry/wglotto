@@ -250,15 +250,52 @@ const GC={"National Weekly":"gnw","Monday Special":"gms","Lucky Tuesday":"glt2",
 function gbadge(g){return'<span class="bg2 '+(GC[g]||"gnw")+'" style="border-radius:20px">'+g+'</span>';}
 function getFreq(data){const f={};for(let i=1;i<=90;i++)f[i]=0;data.forEach(r=>pn(r.numbers).forEach(n=>f[n]++));return f;}
 function setStatus(live,txt){document.getElementById("sDot").className="dot"+(live?" live":"");document.getElementById("sTxt").textContent=txt;}
+// ── Live data: fetches data/results.json from GitHub (updated daily by Actions) ──
+const GITHUB_USER = "WuanGarry";   // ← CHANGE THIS to your GitHub username
+const REPO_NAME   = "wuan-garry";             // ← change if you renamed the repo
+const JSON_URL    = `https://raw.githubusercontent.com/${GITHUB_USER}/${REPO_NAME}/main/data/results.json`;
+
 async function loadDB(){
-  try{const r=await fetch("/api/results?limit=300",{signal:AbortSignal.timeout(7000)});if(!r.ok)throw new Error(r.status);const d=await r.json();if(d.results&&d.results.length){const map={};[...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));setStatus(true,"Live - nla.com.gh");}else setStatus(false,"Demo data");}catch(e){setStatus(false,"Demo data (server offline)");}
-  filtered=[...DB];renderLatest();renderHist();
+  try{
+    // Try GitHub raw JSON first (updated daily by GitHub Actions)
+    const r = await fetch(JSON_URL + "?t=" + Date.now(), {signal:AbortSignal.timeout(8000)});
+    if(!r.ok) throw new Error("GitHub fetch failed: "+r.status);
+    const d = await r.json();
+    if(d.results && d.results.length){
+      // Merge GitHub data with seed (GitHub always wins for duplicates)
+      const map={};
+      [...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);
+      DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
+      const ago = d.last_updated ? " ("+d.last_updated.slice(0,10)+")" : "";
+      setStatus(true,"Live — auto-updated daily"+ago);
+      filtered=[...DB]; renderLatest(); renderHist();
+      return;
+    }
+  }catch(e){ console.warn("GitHub JSON fetch failed:", e.message); }
+
+  // Fallback: try Flask API if running locally
+  try{
+    const r=await fetch("/api/results?limit=300",{signal:AbortSignal.timeout(5000)});
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    if(d.results&&d.results.length){
+      const map={};
+      [...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);
+      DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
+      setStatus(true,"Live - Flask API");
+    } else { setStatus(false,"Demo data"); }
+  }catch(e){ setStatus(false,"Demo data (offline)"); }
+  filtered=[...DB]; renderLatest(); renderHist();
 }
 function renderLatest(){
   document.getElementById("lBadge").textContent=DB.length+" total draws";
   document.getElementById("lBox").innerHTML=DB.slice(0,12).map(r=>{const ns=pn(r.numbers);return'<div style="padding:11px 0;border-bottom:1px solid var(--bd)"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:7px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>'+fd(r.draw_date)+'</strong><span style="font-size:12px;color:var(--mu)">'+r.draw_time+'</span>'+gbadge(r.game_type)+'</div><span style="font-size:11px;color:var(--mu)">Draw #'+r.draw_number+'</span></div><div>'+balls(ns,"b1")+'</div></div>';}).join("");
 }
-async function doRefresh(){setStatus(false,"Refreshing...");try{const r=await fetch("/api/refresh",{method:"POST",signal:AbortSignal.timeout(90000)});const d=await r.json();if(d.success){await loadDB();alert("Done! "+(d.new_records||0)+" new draws added.");}else{alert("Error: "+(d.error||"unknown"));setStatus(false,"Error");}}catch(e){alert("Server not reachable. Showing demo data.");setStatus(false,"Demo data");}}
+async function doRefresh(){
+  setStatus(false,"Reloading from GitHub...");
+  await loadDB();
+  alert("Refreshed! Data is automatically updated daily by GitHub Actions.\n\nNext auto-update: Tonight at 10 PM Ghana time.");
+}
 function renderHist(){let data=[...filtered].sort((a,b)=>{const va=a[sortCol]||"",vb=b[sortCol]||"";return sortAsc?(va>vb?1:-1):(va<vb?1:-1);});const total=data.length,slice=data.slice(page*PER,(page+1)*PER);document.getElementById("hBody").innerHTML=slice.map(r=>'<tr><td>'+fd(r.draw_date)+'</td><td>'+(r.draw_time||"--")+'</td><td>'+gbadge(r.game_type)+'</td><td>'+balls(pn(r.numbers),"bn",true)+'</td><td style="font-size:11px;color:var(--mu)">'+(r.draw_number||"--")+'</td></tr>').join("")||'<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:2rem">No results found</td></tr>';document.getElementById("hCount").textContent="Showing "+(page*PER+1)+"-"+Math.min((page+1)*PER,total)+" of "+total;document.getElementById("bPrev").disabled=page===0;document.getElementById("bNext").disabled=(page+1)*PER>=total;}
 function sortBy(c){if(sortCol===c)sortAsc=!sortAsc;else{sortCol=c;sortAsc=false;}page=0;renderHist();}
 function pg(d){page=Math.max(0,page+d);renderHist();}
