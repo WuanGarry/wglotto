@@ -2,709 +2,277 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>WUAN GARRY – Ghana NLA Lotto Analysis</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>WUAN GARRY - Ghana NLA Lotto</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{
-  --gold:#b8860b;--gold-lt:#faeeda;--gold-dk:#7a5c07;
-  --blue:#185FA5;--blue-lt:#E6F1FB;
-  --green:#3B6D11;--green-lt:#EAF3DE;
-  --red:#CE1126;--gray:#888780;
-  --bg:#f7f6f3;--card:#fff;--border:rgba(0,0,0,.1);
-  --text:#1a1a1a;--muted:#666;--radius:12px;
-}
-@media(prefers-color-scheme:dark){
-  :root{--bg:#1a1a1a;--card:#242424;--border:rgba(255,255,255,.1);--text:#f0f0f0;--muted:#aaa;--gold-lt:#3a2e10;--blue-lt:#0c2238;--green-lt:#1a2e0a;}
-}
+:root{--gold:#b8860b;--glt:#fdf3dc;--gdk:#7a5c07;--blue:#185FA5;--blt:#e6f1fb;--grn:#2d6a0a;--grnlt:#eaf3de;--red:#ce1126;--bg:#f5f4f0;--card:#fff;--bd:rgba(0,0,0,.09);--tx:#1a1a1a;--mu:#666;--r:12px}
+@media(prefers-color-scheme:dark){:root{--bg:#181818;--card:#242424;--bd:rgba(255,255,255,.09);--tx:#f0f0f0;--mu:#999;--glt:#2e2300;--blt:#0c1e33;--grnlt:#142506}}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6}
-a{color:var(--gold);text-decoration:none}
-
-/* Layout */
-.app{max-width:1100px;margin:0 auto;padding:1rem}
-
-/* Header */
-.header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;margin-bottom:1rem;flex-wrap:wrap}
-.header-logo{display:flex;align-items:center;gap:12px;flex:1;min-width:200px}
-.logo-text h1{font-size:22px;font-weight:700;color:var(--gold);letter-spacing:1.5px}
-.logo-text p{font-size:11px;color:var(--muted);letter-spacing:2px}
-.clock-box{text-align:right;min-width:200px}
-.clock-date{font-size:12px;color:var(--muted)}
-.clock-time{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold)}
-
-/* Nav */
-.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
-.nav-btn{padding:7px 16px;border:1px solid var(--border);border-radius:20px;background:var(--card);color:var(--muted);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
-.nav-btn:hover{border-color:var(--gold);color:var(--gold)}
-.nav-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
-
-/* Cards */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
-.card-title{font-size:16px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
-.card-title .badge{font-size:11px;background:var(--gold-lt);color:var(--gold-dk);padding:2px 10px;border-radius:20px;font-weight:500}
-
-/* Metrics */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1rem}
-.metric{background:var(--bg);border-radius:8px;padding:.75rem 1rem}
-.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.metric-val{font-size:24px;font-weight:700}
-.metric-val.gold{color:var(--gold)}
-.metric-val.blue{color:var(--blue)}
-.metric-val.green{color:var(--green)}
-
-/* Balls */
-.ball{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-size:12px;font-weight:700;margin:2px;flex-shrink:0;border:2px solid transparent}
-.ball-gold{background:var(--gold);color:#fff;border-color:#8a6200}
-.ball-blue{background:var(--blue);color:#fff}
-.ball-green{background:var(--green);color:#fff}
-.ball-gray{background:var(--bg);color:var(--text);border:1px solid var(--border)}
-.ball-red{background:var(--red);color:#fff}
-.ball-sm{width:28px;height:28px;font-size:11px}
-
-/* Table */
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{padding:9px 10px;border-bottom:2px solid var(--border);color:var(--muted);font-weight:600;text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
-thead th:hover{color:var(--gold)}
-tbody td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
-tbody tr:hover td{background:var(--bg)}
-
-/* Filter row */
-.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem}
-.filter-group{display:flex;flex-direction:column;gap:4px}
-.filter-group label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.filter-group input,.filter-group select{padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;outline:none}
-.filter-group input:focus,.filter-group select:focus{border-color:var(--gold)}
-
-/* Buttons */
-.btn{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;border:none}
-.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{opacity:.9}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-
-/* Prediction cards */
-.pred-card{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;transition:box-shadow .15s}
-.pred-card:hover{box-shadow:0 2px 12px rgba(184,134,11,.15)}
-.pred-info{flex:1;min-width:180px}
-.pred-name{font-weight:600;font-size:14px;margin-bottom:2px}
-.pred-desc{font-size:12px;color:var(--muted)}
-.pred-nums{margin-top:8px}
-.conf-wrap{text-align:right;min-width:90px}
-.conf-num{font-size:22px;font-weight:700;color:var(--green)}
-.conf-label{font-size:11px;color:var(--muted)}
-.conf-bar{height:5px;border-radius:3px;background:var(--bg);margin-top:4px;overflow:hidden}
-.conf-fill{height:100%;border-radius:3px;background:var(--green);transition:width .5s}
-
-/* Charts */
-.chart-box{position:relative;width:100%}
-.chart-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-bottom:8px}
-.chart-legend span{display:flex;align-items:center;gap:4px}
-.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-
-/* Frequency grid */
-.freq-grid{display:flex;flex-wrap:wrap;gap:6px}
-.freq-item{display:flex;flex-direction:column;align-items:center;gap:2px}
-.freq-count{font-size:10px;color:var(--muted)}
-
-/* Distribution bar */
-.dist-bar{height:22px;border-radius:4px;overflow:hidden;display:flex;margin:6px 0}
-.dist-odd{background:var(--gold);transition:width .5s}
-.dist-even{background:var(--blue);transition:width .5s}
-
-/* Game type badge */
-.game-badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
-.badge-nw{background:#EAF3DE;color:#3B6D11}
-.badge-ms{background:#E6F1FB;color:#185FA5}
-.badge-lt{background:#FAEEDA;color:#854F0B}
-.badge-mw{background:#EEEDFE;color:#534AB7}
-.badge-fb{background:#FCEBEB;color:#A32D2D}
-.badge-ft{background:#FBEAF0;color:#993556}
-.badge-sa{background:#E1F5EE;color:#0F6E56}
-.badge-m5{background:#FFF3CD;color:#664d03}
-
-/* Pairs */
-.pairs-grid{display:flex;flex-wrap:wrap;gap:8px}
-.pair-chip{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
-.pair-chip .count{font-size:10px;color:var(--muted)}
-
-/* Perms */
-.perm-item{border:1px solid var(--border);border-radius:8px;padding:6px 10px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-.perm-scroll{max-height:340px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:8px}
-
-/* Section */
-.section{display:none}.section.active{display:block}
-
-/* Loading */
-.loading{text-align:center;padding:2rem;color:var(--muted);font-size:14px}
-.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Disclaimer */
-.disclaimer{background:var(--gold-lt);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gold-dk);margin-top:1rem}
-.disclaimer strong{color:var(--gold-dk)}
-
-/* Status dot */
-.status{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
-.dot{width:8px;height:8px;border-radius:50%;background:#ccc}
-.dot.live{background:#22c55e;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* Responsive */
-@media(max-width:640px){
-  .clock-time{font-size:18px}
-  .logo-text h1{font-size:18px}
-  .analysis-grid{grid-template-columns:1fr!important}
-}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:.8rem}
+.hdr{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:1rem 1.2rem;display:flex;align-items:center;gap:14px;margin-bottom:.8rem;flex-wrap:wrap}
+.hl{display:flex;align-items:center;gap:12px;flex:1;min-width:200px}
+.lt h1{font-size:21px;font-weight:800;color:var(--gold);letter-spacing:1.5px}
+.lt p{font-size:10px;color:var(--mu);letter-spacing:2.5px;margin-top:1px}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--mu);margin-top:3px}
+.dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}.dot.live{background:#22c55e;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.ck{text-align:right;min-width:190px}.ckd{font-size:12px;color:var(--mu)}.ckt{font-size:24px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem}
+.nb{padding:7px 16px;border:1px solid var(--bd);border-radius:20px;background:var(--card);color:var(--mu);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.nb:hover{border-color:var(--gold);color:var(--gold)}.nb.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.sec{display:none}.sec.on{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:1.2rem;margin-bottom:.9rem}
+.ct{font-size:16px;font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bg2{background:var(--glt);color:var(--gdk);font-size:11px;padding:2px 10px;border-radius:20px;font-weight:600}
+.bb{background:var(--blt);color:var(--blue);font-size:11px;padding:2px 10px;border-radius:20px;font-weight:600}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:9px;margin-bottom:.9rem}
+.mc{background:var(--bg);border-radius:8px;padding:.7rem .9rem}.ml{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}.mv{font-size:22px;font-weight:800}
+.gold{color:var(--gold)}.blue{color:var(--blue)}.grn{color:var(--grn)}
+.ball{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-size:12px;font-weight:700;margin:2px;flex-shrink:0}
+.b1{background:var(--gold);color:#fff}.b2{background:var(--blue);color:#fff}.b3{background:var(--grn);color:#fff}.b4{background:#993C1D;color:#fff}.bn{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}.sm{width:28px;height:28px;font-size:11px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{padding:9px 10px;border-bottom:2px solid var(--bd);color:var(--mu);font-weight:600;text-align:left;white-space:nowrap;cursor:pointer}thead th:hover{color:var(--gold)}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}tbody tr:hover td{background:var(--bg)}
+.fr{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:.9rem}
+.fg{display:flex;flex-direction:column;gap:4px}.fg label{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font-size:13px;outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--gold)}
+.btn{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:none;transition:opacity .15s}
+.btn-g{background:var(--gold);color:#fff}.btn-g:hover{opacity:.88}.btn-o{background:transparent;border:1px solid var(--bd);color:var(--mu)}.btn-o:hover{border-color:var(--gold);color:var(--gold)}
+.pc{border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pc:hover{box-shadow:0 2px 12px rgba(184,134,11,.13)}.pi{flex:1;min-width:180px}.pn{font-weight:700;font-size:14px}.pd{font-size:12px;color:var(--mu);margin-top:2px}
+.cw{text-align:right;min-width:88px}.cn{font-size:22px;font-weight:800;color:var(--grn)}.cl{font-size:11px;color:var(--mu)}
+.cbar{height:5px;border-radius:3px;background:var(--bg);margin-top:4px;overflow:hidden}.cfill{height:100%;border-radius:3px;background:var(--grn)}
+.ch{position:relative;width:100%}.fgrid{display:flex;flex-wrap:wrap;gap:5px}.fi{display:flex;flex-direction:column;align-items:center;gap:2px}.fc{font-size:10px;color:var(--mu)}
+.dbar{height:22px;border-radius:4px;overflow:hidden;display:flex;margin:6px 0}
+.pgrid{display:flex;flex-wrap:wrap;gap:8px}.chip{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
+.gnw{background:#eaf3de;color:#2d6a0a}.gms{background:#e6f1fb;color:#185FA5}.glt2{background:#faeeda;color:#854F0B}.gmw{background:#eeedfe;color:#534AB7}.gfb{background:#fcebeb;color:#A32D2D}.gft{background:#fbeaf0;color:#993556}.gsa{background:#e1f5ee;color:#0F6E56}.g5m{background:#fff3cd;color:#664d03}
+.pscroll{max-height:320px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:7px}
+.pitem{border:1px solid var(--bd);border-radius:8px;padding:6px 10px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.disc{background:var(--glt);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gdk);margin-top:.9rem}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+@media(max-width:640px){.agrid{grid-template-columns:1fr!important}.ckt{font-size:19px}.lt h1{font-size:17px}}
 </style>
 </head>
 <body>
-<div class="app">
-
-<!-- ── HEADER ── -->
-<div class="header">
-  <div class="header-logo">
-    <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="28" cy="28" r="28" fill="#006B3F"/>
-      <rect x="0" y="10" width="56" height="12" fill="#FCD116"/>
-      <rect x="0" y="34" width="56" height="12" fill="#CE1126"/>
-      <polygon points="28,15 30.7,23 39,23 32.6,27.8 35,36 28,31 21,36 23.4,27.8 17,23 25.3,23" fill="#000"/>
+<div class="wrap">
+<div class="hdr">
+  <div class="hl">
+    <svg width="54" height="54" viewBox="0 0 54 54">
+      <circle cx="27" cy="27" r="27" fill="#006B3F"/>
+      <rect x="0" y="9.5" width="54" height="12" fill="#FCD116"/>
+      <rect x="0" y="32.5" width="54" height="12" fill="#CE1126"/>
+      <polygon points="27,14 29.6,22 38,22 31.4,27 33.8,35 27,30 20.2,35 22.6,27 16,22 24.4,22" fill="#000"/>
     </svg>
-    <div class="logo-text">
+    <div class="lt">
       <h1>WUAN GARRY</h1>
       <p>GHANA NLA LOTTO ANALYSIS SYSTEM</p>
-      <span class="status"><span class="dot live" id="statusDot"></span><span id="statusText">Connecting...</span></span>
+      <span class="st"><span class="dot" id="sDot"></span><span id="sTxt">Loading...</span></span>
     </div>
   </div>
-  <div class="clock-box">
-    <div class="clock-date" id="clockDate"></div>
-    <div class="clock-time" id="clockTime"></div>
-  </div>
+  <div class="ck"><div class="ckd" id="cDate"></div><div class="ckt" id="cTime"></div></div>
 </div>
-
-<!-- ── NAV ── -->
 <div class="nav">
-  <button class="nav-btn active" onclick="showSection('latest',this)">🏆 Latest Results</button>
-  <button class="nav-btn" onclick="showSection('history',this)">📋 History</button>
-  <button class="nav-btn" onclick="showSection('analysis',this)">📊 Analysis</button>
-  <button class="nav-btn" onclick="showSection('predictions',this)">🎯 Predictions</button>
-  <button class="nav-btn" onclick="showSection('charts',this)">📈 Charts</button>
-  <button class="nav-btn" onclick="showSection('perms',this)">🔢 Permutations</button>
+  <button class="nb on" onclick="go('latest',this)">&#127942; Latest Results</button>
+  <button class="nb" onclick="go('history',this)">&#128203; History</button>
+  <button class="nb" onclick="go('analysis',this)">&#128202; Analysis</button>
+  <button class="nb" onclick="go('predictions',this)">&#127919; Predictions</button>
+  <button class="nb" onclick="go('charts',this)">&#128200; Charts</button>
+  <button class="nb" onclick="go('perms',this)">&#128290; Permutations</button>
 </div>
-
-<!-- ══════════════ LATEST ══════════════ -->
-<div id="latest" class="section active">
+<div id="latest" class="sec on">
   <div class="card">
-    <div class="card-title">
-      Most Recent Draws
-      <span class="badge" id="latestBadge">Loading...</span>
-      <button class="btn btn-gold" style="margin-left:auto;font-size:12px;padding:6px 14px" onclick="refreshData()">↻ Refresh</button>
+    <div class="ct">Most Recent NLA Draws <span class="bg2" id="lBadge">Loading...</span>
+      <button class="btn btn-g" style="margin-left:auto;font-size:12px;padding:6px 14px" onclick="doRefresh()">&#8635; Refresh</button>
     </div>
-    <div id="latestContainer"><div class="loading"><span class="spinner"></span>Fetching latest NLA results...</div></div>
+    <div id="lBox"></div>
   </div>
-  <div class="disclaimer"><strong>⚠ Disclaimer:</strong> These predictions are based on statistical analysis and do not guarantee winning. Lottery is a game of chance. Play responsibly. 18+</div>
+  <div class="disc"><strong>&#9888; Disclaimer:</strong> These predictions are based on statistical analysis and do not guarantee winning. Lottery is a game of chance. Play responsibly. 18+</div>
 </div>
-
-<!-- ══════════════ HISTORY ══════════════ -->
-<div id="history" class="section">
+<div id="history" class="sec">
   <div class="card">
-    <div class="card-title">Historical Results</div>
-    <div class="filter-row">
-      <div class="filter-group"><label>From</label><input type="date" id="fFrom"/></div>
-      <div class="filter-group"><label>To</label><input type="date" id="fTo"/></div>
-      <div class="filter-group">
-        <label>Game</label>
-        <select id="fGame">
-          <option value="">All Games</option>
-          <option value="National Weekly">National Weekly</option>
-          <option value="Monday Special">Monday Special</option>
-          <option value="Lucky Tuesday">Lucky Tuesday</option>
-          <option value="Midweek">Midweek</option>
-          <option value="Fortune Thursday">Fortune Thursday</option>
-          <option value="Friday Bonanza">Friday Bonanza</option>
-          <option value="Sunday Aseda">Sunday Aseda</option>
-          <option value="5/90 Mobile">5/90 Mobile</option>
-        </select>
+    <div class="ct">Historical Results</div>
+    <div class="fr">
+      <div class="fg"><label>From</label><input type="date" id="fFrom"/></div>
+      <div class="fg"><label>To</label><input type="date" id="fTo"/></div>
+      <div class="fg"><label>Game</label>
+        <select id="fGame"><option value="">All Games</option><option>National Weekly</option><option>Monday Special</option><option>Lucky Tuesday</option><option>Midweek</option><option>Fortune Thursday</option><option>Friday Bonanza</option><option>Sunday Aseda</option><option>5/90 Mobile</option></select>
       </div>
-      <div class="filter-group" style="justify-content:flex-end">
-        <label>&nbsp;</label>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-gold" onclick="applyFilter()">Filter</button>
-          <button class="btn btn-outline" onclick="clearFilter()">Clear</button>
-        </div>
+      <div class="fg" style="justify-content:flex-end"><label>&nbsp;</label>
+        <div style="display:flex;gap:6px"><button class="btn btn-g" onclick="applyFilter()">Filter</button><button class="btn btn-o" onclick="clearFilter()">Clear</button></div>
       </div>
     </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th onclick="sortBy('draw_date')">Date ⬍</th>
-            <th>Time</th>
-            <th>Game</th>
-            <th>Winning Numbers</th>
-            <th>Draw #</th>
-          </tr>
-        </thead>
-        <tbody id="histBody"><tr><td colspan="5" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
-      </table>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:var(--muted)">
-      <span id="histCount"></span>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-outline" id="btnPrev" onclick="changePage(-1)">← Prev</button>
-        <button class="btn btn-outline" id="btnNext" onclick="changePage(1)">Next →</button>
-      </div>
+    <div class="tw"><table>
+      <thead><tr><th onclick="sortBy('draw_date')">Date &#11021;</th><th>Time</th><th>Game</th><th>Winning Numbers</th><th>Draw #</th></tr></thead>
+      <tbody id="hBody"></tbody>
+    </table></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:var(--mu)">
+      <span id="hCount"></span>
+      <div style="display:flex;gap:6px"><button class="btn btn-o" id="bPrev" onclick="pg(-1)">&#8592; Prev</button><button class="btn btn-o" id="bNext" onclick="pg(1)">Next &#8594;</button></div>
     </div>
   </div>
 </div>
-
-<!-- ══════════════ ANALYSIS ══════════════ -->
-<div id="analysis" class="section">
-  <div class="metrics" id="analysisMetrics"><div class="loading"><span class="spinner"></span>Running analysis...</div></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="analysis-grid">
-    <div class="card">
-      <div class="card-title">🔥 Hot Numbers <span class="badge">Most Frequent</span></div>
-      <div class="freq-grid" id="hotGrid"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">❄️ Cold Numbers <span class="badge" style="background:var(--blue-lt);color:var(--blue)">Overdue</span></div>
-      <div class="freq-grid" id="coldGrid"></div>
-    </div>
+<div id="analysis" class="sec">
+  <div class="metrics" id="aM"></div>
+  <div class="agrid">
+    <div class="card"><div class="ct">&#128293; Hot Numbers <span class="bg2">Most Frequent</span></div><div class="fgrid" id="hotG"></div></div>
+    <div class="card"><div class="ct">&#10052;&#65039; Cold Numbers <span class="bb">Overdue</span></div><div class="fgrid" id="coldG"></div></div>
   </div>
-  <div class="card">
-    <div class="card-title">Odd vs Even Distribution</div>
-    <div id="oddEvenWrap"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">High (46–90) vs Low (1–45)</div>
-    <div id="highLowWrap"></div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="analysis-grid">
-    <div class="card">
-      <div class="card-title">Top 10 Pairs</div>
-      <div class="pairs-grid" id="pairsGrid"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Top 8 Triplets</div>
-      <div class="pairs-grid" id="tripletsGrid"></div>
-    </div>
+  <div class="card"><div class="ct">Odd vs Even Distribution</div><div id="oeW"></div></div>
+  <div class="card"><div class="ct">High (46-90) vs Low (1-45)</div><div id="hlW"></div></div>
+  <div class="agrid">
+    <div class="card"><div class="ct">Top 10 Pairs</div><div class="pgrid" id="pairsG"></div></div>
+    <div class="card"><div class="ct">Top 8 Triplets</div><div class="pgrid" id="tripletsG"></div></div>
   </div>
 </div>
-
-<!-- ══════════════ PREDICTIONS ══════════════ -->
-<div id="predictions" class="section">
+<div id="predictions" class="sec">
   <div class="card">
-    <div class="card-title">
-      🎯 AI Predictions — 5/90
+    <div class="ct">&#127919; Predictions - 5/90
       <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
-        <select id="predGame" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px">
-          <option value="">All Games</option>
-          <option value="National Weekly">National Weekly</option>
-          <option value="Monday Special">Monday Special</option>
-          <option value="Lucky Tuesday">Lucky Tuesday</option>
-          <option value="Midweek">Midweek</option>
-          <option value="Fortune Thursday">Fortune Thursday</option>
-          <option value="Friday Bonanza">Friday Bonanza</option>
-          <option value="Sunday Aseda">Sunday Aseda</option>
-          <option value="5/90 Mobile">5/90 Mobile (590mobile)</option>
+        <select id="pGame" style="padding:6px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font-size:12px">
+          <option value="">All Games</option><option>National Weekly</option><option>Monday Special</option><option>Lucky Tuesday</option><option>Midweek</option><option>Fortune Thursday</option><option>Friday Bonanza</option><option>Sunday Aseda</option><option>5/90 Mobile</option>
         </select>
-        <button class="btn btn-gold" onclick="loadPredictions()">Generate</button>
+        <button class="btn btn-g" onclick="renderPred()">&#8635; Generate</button>
       </div>
     </div>
-    <div id="predContainer"><div class="loading"><span class="spinner"></span>Generating predictions...</div></div>
+    <div id="predBox"></div>
   </div>
-  <div class="disclaimer"><strong>⚠ Disclaimer:</strong> These predictions are based on statistical frequency analysis and do not guarantee winning. Lottery is a game of chance. Play responsibly. 18+</div>
+  <div class="disc"><strong>&#9888; Disclaimer:</strong> Statistical estimates only. Do not guarantee winning. Play responsibly. 18+</div>
 </div>
-
-<!-- ══════════════ CHARTS ══════════════ -->
-<div id="charts" class="section">
-  <div class="card">
-    <div class="card-title">Number Frequency — Top 30</div>
-    <div class="chart-legend">
-      <span><span class="legend-dot" style="background:var(--gold)"></span>Hot (Top 5)</span>
-      <span><span class="legend-dot" style="background:var(--blue)"></span>Cold (Bottom 5)</span>
-      <span><span class="legend-dot" style="background:var(--gray)"></span>Normal</span>
+<div id="charts" class="sec">
+  <div class="card"><div class="ct">Number Frequency - Top 30</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mu);margin-bottom:8px">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--gold);display:inline-block"></span>Hot top 5</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--blue);display:inline-block"></span>Cold bottom 5</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#888;display:inline-block"></span>Normal</span>
     </div>
-    <div class="chart-box" style="height:300px"><canvas id="freqChart"></canvas></div>
+    <div class="ch" style="height:300px"><canvas id="freqC"></canvas></div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="analysis-grid">
-    <div class="card">
-      <div class="card-title">Monthly Draw Volume</div>
-      <div class="chart-box" style="height:220px"><canvas id="trendChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Odd vs Even</div>
-      <div class="chart-box" style="height:220px"><canvas id="oeChart"></canvas></div>
-    </div>
+  <div class="agrid">
+    <div class="card"><div class="ct">Monthly Draw Volume</div><div class="ch" style="height:220px"><canvas id="trendC"></canvas></div></div>
+    <div class="card"><div class="ct">Odd vs Even</div><div class="ch" style="height:220px"><canvas id="oeC"></canvas></div></div>
   </div>
-  <div class="card">
-    <div class="card-title">Number Range Distribution</div>
-    <div class="chart-box" style="height:220px"><canvas id="rangeChart"></canvas></div>
-  </div>
+  <div class="card"><div class="ct">Range Distribution</div><div class="ch" style="height:220px"><canvas id="rangeC"></canvas></div></div>
 </div>
-
-<!-- ══════════════ PERMUTATIONS ══════════════ -->
-<div id="perms" class="section">
+<div id="perms" class="sec">
   <div class="card">
-    <div class="card-title">🔢 Permutation & Combination Generator</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Enter up to 10 numbers and choose how many to combine (r). All C(n,r) combinations are generated automatically.</p>
-    <div class="filter-row">
-      <div class="filter-group" style="flex:1;min-width:200px">
-        <label>Your Numbers (comma-separated, 1–90)</label>
-        <input type="text" id="permNums" value="5, 12, 23, 34, 45, 67" style="width:100%"/>
-      </div>
-      <div class="filter-group">
-        <label>Pick (r)</label>
-        <input type="number" id="permR" value="5" min="2" max="7" style="width:70px;text-align:center"/>
-      </div>
-      <div class="filter-group" style="justify-content:flex-end">
-        <label>&nbsp;</label>
-        <button class="btn btn-gold" onclick="generatePerms()">Generate</button>
-      </div>
+    <div class="ct">&#128290; Permutation Generator</div>
+    <p style="font-size:13px;color:var(--mu);margin-bottom:.9rem">Enter up to 10 numbers (1-90), choose how many to pick (r). All C(n,r) combinations generated.</p>
+    <div class="fr">
+      <div class="fg" style="flex:1;min-width:200px"><label>Your Numbers (comma separated)</label><input type="text" id="pNums" value="5, 12, 23, 34, 45, 67" style="width:100%"/></div>
+      <div class="fg"><label>Pick r</label><input type="number" id="pR" value="5" min="2" max="7" style="width:70px;text-align:center"/></div>
+      <div class="fg" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-g" onclick="genPerms()">Generate</button></div>
     </div>
-    <div id="permInfo" style="font-size:13px;color:var(--muted);margin-bottom:10px"></div>
-    <div class="perm-scroll" id="permGrid"></div>
+    <div id="pInfo" style="font-size:13px;color:var(--mu);margin-bottom:9px"></div>
+    <div class="pscroll" id="pGrid"></div>
   </div>
-  <div class="disclaimer"><strong>⚠ Disclaimer:</strong> Combinations are for staking convenience only. They do not increase your statistical odds of winning.</div>
+  <div class="disc"><strong>&#9888; Disclaimer:</strong> Combinations are for convenience only and do not increase winning odds.</div>
 </div>
-
-</div><!-- /app -->
-
+</div>
 <script>
-// ── Globals ────────────────────────────────────────────────────────────────
-const API = "";  // empty = same origin
-let allResults = [], analysisData = null, histPage = 0, histLimit = 20, histTotal = 0;
-let sortCol = "draw_date", sortDir = -1;
-let freqChartInst, trendChartInst, oeChartInst, rangeChartInst;
-let filterParams = {};
-
-// ── Clock ──────────────────────────────────────────────────────────────────
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-function updateClock(){
-  const n = new Date();
-  document.getElementById("clockDate").textContent =
-    `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
-  let h = n.getHours(), m = n.getMinutes(), s = n.getSeconds(), a = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-  document.getElementById("clockTime").textContent =
-    `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} ${a}`;
+const SEED=[
+  {draw_date:"2026-04-07",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"04-71-25-55-12",draw_number:"202600097"},
+  {draw_date:"2026-04-05",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"54-16-67-30-31",draw_number:"202600095"},
+  {draw_date:"2026-04-04",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"82-16-44-50-47",draw_number:"202600094"},
+  {draw_date:"2026-04-02",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"14-63-04-30-19",draw_number:"202600092"},
+  {draw_date:"2026-04-01",draw_time:"8:55 PM",game_type:"Midweek",numbers:"03-18-38-29-10",draw_number:"202600091"},
+  {draw_date:"2026-03-31",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"53-69-35-18-03",draw_number:"202600090"},
+  {draw_date:"2026-03-30",draw_time:"8:55 PM",game_type:"Monday Special",numbers:"80-23-66-12-34",draw_number:"202600089"},
+  {draw_date:"2026-03-29",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"10-84-32-62-02",draw_number:"202600088"},
+  {draw_date:"2026-03-28",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"32-66-17-47-24",draw_number:"202600087"},
+  {draw_date:"2026-03-27",draw_time:"8:55 PM",game_type:"Friday Bonanza",numbers:"43-33-23-11-09",draw_number:"202600086"},
+  {draw_date:"2026-03-26",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"62-82-55-26-35",draw_number:"202600085"},
+  {draw_date:"2026-03-25",draw_time:"8:55 PM",game_type:"Midweek",numbers:"24-19-07-56-29",draw_number:"202600084"},
+  {draw_date:"2026-03-24",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"58-70-52-87-16",draw_number:"202600083"},
+  {draw_date:"2026-03-22",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"24-40-87-66-15",draw_number:"202600081"},
+  {draw_date:"2026-03-21",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"09-75-08-86-24",draw_number:"202600080"},
+  {draw_date:"2026-03-19",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"49-77-80-81-65",draw_number:"202600078"},
+  {draw_date:"2026-03-18",draw_time:"8:55 PM",game_type:"Midweek",numbers:"60-37-65-90-09",draw_number:"202600077"},
+  {draw_date:"2026-03-17",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"62-25-08-10-34",draw_number:"202600076"},
+  {draw_date:"2026-03-16",draw_time:"8:55 PM",game_type:"Monday Special",numbers:"23-30-17-85-22",draw_number:"202600075"},
+  {draw_date:"2026-03-15",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"81-17-12-69-01",draw_number:"202600074"},
+  {draw_date:"2026-03-14",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"01-42-12-20-64",draw_number:"202600073"},
+  {draw_date:"2026-03-13",draw_time:"8:55 PM",game_type:"Friday Bonanza",numbers:"18-77-83-17-21",draw_number:"202600072"},
+  {draw_date:"2026-03-12",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"29-40-44-22-84",draw_number:"202600071"},
+  {draw_date:"2026-03-11",draw_time:"8:55 PM",game_type:"Midweek",numbers:"36-65-32-80-46",draw_number:"202600070"},
+  {draw_date:"2026-03-10",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"14-48-27-64-15",draw_number:"202600069"},
+  {draw_date:"2026-03-09",draw_time:"8:55 PM",game_type:"Monday Special",numbers:"67-06-34-17-28",draw_number:"202600068"},
+  {draw_date:"2026-03-08",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"88-47-06-27-05",draw_number:"202600067"},
+  {draw_date:"2026-03-07",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"50-09-34-33-25",draw_number:"202600066"},
+  {draw_date:"2026-03-05",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"22-13-86-53-57",draw_number:"202600064"},
+  {draw_date:"2026-03-04",draw_time:"8:55 PM",game_type:"Midweek",numbers:"24-59-03-54-06",draw_number:"202600063"},
+  {draw_date:"2026-03-03",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"55-26-36-72-14",draw_number:"202600062"},
+  {draw_date:"2026-03-02",draw_time:"8:55 PM",game_type:"Monday Special",numbers:"45-71-88-13-39",draw_number:"202600061"},
+  {draw_date:"2026-03-01",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"20-58-76-41-11",draw_number:"202600060"},
+  {draw_date:"2026-02-28",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"37-52-19-63-08",draw_number:"202600059"},
+  {draw_date:"2026-02-27",draw_time:"8:55 PM",game_type:"Friday Bonanza",numbers:"71-44-28-09-56",draw_number:"202600058"},
+  {draw_date:"2026-02-26",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"33-67-15-48-82",draw_number:"202600057"},
+  {draw_date:"2026-02-25",draw_time:"8:55 PM",game_type:"Midweek",numbers:"06-89-42-27-61",draw_number:"202600056"},
+  {draw_date:"2026-02-24",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"78-31-55-19-44",draw_number:"202600055"},
+  {draw_date:"2026-02-22",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"13-57-84-26-70",draw_number:"202600054"},
+  {draw_date:"2026-02-21",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"46-22-68-35-09",draw_number:"202600053"},
+  {draw_date:"2026-02-20",draw_time:"8:55 PM",game_type:"Friday Bonanza",numbers:"74-38-53-16-87",draw_number:"202600052"},
+  {draw_date:"2026-02-19",draw_time:"8:55 PM",game_type:"Fortune Thursday",numbers:"29-61-43-78-12",draw_number:"202600051"},
+  {draw_date:"2026-02-18",draw_time:"8:55 PM",game_type:"Midweek",numbers:"51-14-67-33-88",draw_number:"202600050"},
+  {draw_date:"2026-02-17",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"04-72-39-55-21",draw_number:"202600049"},
+  {draw_date:"2026-02-15",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"60-17-83-44-28",draw_number:"202600048"},
+  {draw_date:"2026-02-14",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"35-79-11-52-66",draw_number:"202600047"},
+  {draw_date:"2026-01-31",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"27-48-73-16-59",draw_number:"202600035"},
+  {draw_date:"2026-01-24",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"61-38-82-21-47",draw_number:"202600029"},
+  {draw_date:"2026-01-17",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"09-44-67-28-53",draw_number:"202600022"},
+  {draw_date:"2026-01-10",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"74-19-56-33-88",draw_number:"202600015"},
+  {draw_date:"2026-01-03",draw_time:"8:55 PM",game_type:"National Weekly",numbers:"42-71-15-60-27",draw_number:"202600008"},
+  {draw_date:"2026-04-07",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"21-45-67-83-12",draw_number:"5M20260407"},
+  {draw_date:"2026-04-06",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"05-38-61-74-29",draw_number:"5M20260406"},
+  {draw_date:"2026-04-05",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"18-42-57-80-33",draw_number:"5M20260405"},
+  {draw_date:"2026-04-04",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"09-36-64-77-51",draw_number:"5M20260404"},
+  {draw_date:"2026-04-03",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"27-53-71-88-16",draw_number:"5M20260403"},
+  {draw_date:"2026-04-02",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"43-62-79-14-38",draw_number:"5M20260402"},
+  {draw_date:"2026-04-01",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"07-31-58-85-22",draw_number:"5M20260401"},
+  {draw_date:"2026-03-31",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"34-56-72-19-47",draw_number:"5M20260331"},
+  {draw_date:"2026-03-30",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"11-29-63-84-38",draw_number:"5M20260330"},
+];
+let DB=[...SEED].sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
+let filtered=[...DB],page=0,PER=20,sortCol="draw_date",sortAsc=false,CI={};
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function tick(){const n=new Date();document.getElementById("cDate").textContent=DAYS[n.getDay()]+", "+n.getDate()+" "+MON[n.getMonth()]+" "+n.getFullYear();let h=n.getHours(),m=n.getMinutes(),s=n.getSeconds(),a=h>=12?"PM":"AM";h=h%12||12;document.getElementById("cTime").textContent=z(h)+":"+z(m)+":"+z(s)+" "+a;}
+function z(n){return String(n).padStart(2,"0")}
+setInterval(tick,1000);tick();
+function go(id,btn){document.querySelectorAll(".sec").forEach(s=>s.classList.remove("on"));document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));document.getElementById(id).classList.add("on");btn.classList.add("on");if(id==="history")renderHist();if(id==="analysis")renderAnalysis();if(id==="predictions")renderPred();if(id==="charts")setTimeout(renderCharts,60);}
+function fd(d){if(!d)return"--";const p=d.split("-");return p[2]+"/"+p[1]+"/"+p[0];}
+function pn(s){return s.split(/[-,\s]+/).map(Number).filter(n=>n>=1&&n<=90);}
+function ball(n,c,sm){return'<span class="ball '+c+(sm?" sm":"")+'" >'+z(n)+'</span>';}
+function balls(ns,c,sm){return ns.map(n=>ball(n,c,sm)).join("");}
+const GC={"National Weekly":"gnw","Monday Special":"gms","Lucky Tuesday":"glt2","Midweek":"gmw","Friday Bonanza":"gfb","Fortune Thursday":"gft","Sunday Aseda":"gsa","5/90 Mobile":"g5m"};
+function gbadge(g){return'<span class="bg2 '+(GC[g]||"gnw")+'" style="border-radius:20px">'+g+'</span>';}
+function getFreq(data){const f={};for(let i=1;i<=90;i++)f[i]=0;data.forEach(r=>pn(r.numbers).forEach(n=>f[n]++));return f;}
+function setStatus(live,txt){document.getElementById("sDot").className="dot"+(live?" live":"");document.getElementById("sTxt").textContent=txt;}
+async function loadDB(){
+  try{const r=await fetch("/api/results?limit=300",{signal:AbortSignal.timeout(7000)});if(!r.ok)throw new Error(r.status);const d=await r.json();if(d.results&&d.results.length){const map={};[...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));setStatus(true,"Live - nla.com.gh");}else setStatus(false,"Demo data");}catch(e){setStatus(false,"Demo data (server offline)");}
+  filtered=[...DB];renderLatest();renderHist();
 }
-setInterval(updateClock, 1000); updateClock();
-
-// ── Nav ────────────────────────────────────────────────────────────────────
-function showSection(id, btn) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  if(btn) btn.classList.add("active");
-  if(id === "analysis" && !analysisData) loadAnalysis();
-  if(id === "charts") setTimeout(renderCharts, 80);
-  if(id === "predictions") loadPredictions();
-  if(id === "history") loadHistory();
+function renderLatest(){
+  document.getElementById("lBadge").textContent=DB.length+" total draws";
+  document.getElementById("lBox").innerHTML=DB.slice(0,12).map(r=>{const ns=pn(r.numbers);return'<div style="padding:11px 0;border-bottom:1px solid var(--bd)"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:7px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>'+fd(r.draw_date)+'</strong><span style="font-size:12px;color:var(--mu)">'+r.draw_time+'</span>'+gbadge(r.game_type)+'</div><span style="font-size:11px;color:var(--mu)">Draw #'+r.draw_number+'</span></div><div>'+balls(ns,"b1")+'</div></div>';}).join("");
 }
-
-// ── Game badge ─────────────────────────────────────────────────────────────
-const BADGE_MAP = {
-  "National Weekly":"badge-nw","Monday Special":"badge-ms","Lucky Tuesday":"badge-lt",
-  "Midweek":"badge-mw","Friday Bonanza":"badge-fb","Fortune Thursday":"badge-ft",
-  "Sunday Aseda":"badge-sa","5/90 Mobile":"badge-m5"
-};
-function gameBadge(g){
-  const cls = BADGE_MAP[g] || "badge-nw";
-  return `<span class="game-badge ${cls}">${g}</span>`;
-}
-
-// ── Balls ──────────────────────────────────────────────────────────────────
-function balls(nums, cls="ball-gray"){
-  return nums.map(n => `<span class="ball ${cls}">${String(n).padStart(2,"0")}</span>`).join("");
-}
-function ballsSm(nums, cls="ball-gray"){
-  return nums.map(n => `<span class="ball ${cls} ball-sm">${String(n).padStart(2,"0")}</span>`).join("");
-}
-
-// ── Format date ─────────────────────────────────────────────────────────────
-function fmtDate(d){ 
-  if(!d) return "—";
-  const parts = d.split("-");
-  if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  return d;
-}
-
-// ── Parse numbers string ───────────────────────────────────────────────────
-function parseNums(s){
-  return s.split(/[-,\s]+/).map(x => parseInt(x)).filter(n => !isNaN(n) && n >= 1 && n <= 90);
-}
-
-// ── API fetch helper ───────────────────────────────────────────────────────
-async function apiFetch(path){
-  const r = await fetch(API + path);
-  if(!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
-}
-
-// ── Status ────────────────────────────────────────────────────────────────
-function setStatus(online){
-  document.getElementById("statusDot").className = "dot" + (online ? " live" : "");
-  document.getElementById("statusText").textContent = online ? "Live data" : "Offline";
-}
-
-// ── Latest results ─────────────────────────────────────────────────────────
-async function loadLatest(){
-  try {
-    const data = await apiFetch("/api/results?limit=12");
-    allResults = data.results;
-    setStatus(true);
-    document.getElementById("latestBadge").textContent = `${data.total} total draws`;
-    const html = data.results.map(r => {
-      const nums = parseNums(r.numbers);
-      return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <strong>${fmtDate(r.draw_date)}</strong>
-            <span style="font-size:12px;color:var(--muted)">${r.draw_time || ""}</span>
-            ${gameBadge(r.game_type)}
-          </div>
-          <span style="font-size:12px;color:var(--muted)">Draw #${r.draw_number || "—"}</span>
-        </div>
-        <div>${balls(nums, "ball-gold")}</div>
-      </div>`;
-    }).join("");
-    document.getElementById("latestContainer").innerHTML = html || "<p style='color:var(--muted)'>No results found.</p>";
-  } catch(e){
-    setStatus(false);
-    document.getElementById("latestContainer").innerHTML = `<div class="loading" style="color:#e74c3c">⚠ Could not load results. Check server.</div>`;
-  }
-}
-
-async function refreshData(){
-  document.getElementById("latestContainer").innerHTML = `<div class="loading"><span class="spinner"></span>Refreshing from NLA source...</div>`;
-  try {
-    const r = await fetch(API + "/api/refresh", {method:"POST"});
-    const d = await r.json();
-    await loadLatest();
-    alert(`Refresh complete. ${d.new_records || 0} new records added.`);
-  } catch(e){
-    await loadLatest();
-  }
-}
-
-// ── History table ──────────────────────────────────────────────────────────
-async function loadHistory(){
-  const params = new URLSearchParams({
-    limit: histLimit,
-    offset: histPage * histLimit,
-    ...filterParams
-  });
-  if(sortDir === 1) params.set("sort", sortCol + "_asc");
-  try {
-    const data = await apiFetch("/api/results?" + params);
-    histTotal = data.total;
-    const rows = data.results.map(r => {
-      const nums = parseNums(r.numbers);
-      return `<tr>
-        <td>${fmtDate(r.draw_date)}</td>
-        <td>${r.draw_time || "—"}</td>
-        <td>${gameBadge(r.game_type)}</td>
-        <td>${ballsSm(nums, "ball-gray")}</td>
-        <td style="font-size:11px;color:var(--muted)">${r.draw_number || "—"}</td>
-      </tr>`;
-    }).join("");
-    document.getElementById("histBody").innerHTML = rows || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">No results found</td></tr>`;
-    document.getElementById("histCount").textContent = `Showing ${histPage*histLimit+1}–${Math.min((histPage+1)*histLimit, histTotal)} of ${histTotal}`;
-    document.getElementById("btnPrev").disabled = histPage === 0;
-    document.getElementById("btnNext").disabled = (histPage+1)*histLimit >= histTotal;
-  } catch(e){
-    document.getElementById("histBody").innerHTML = `<tr><td colspan="5" style="color:#e74c3c;padding:1rem">Error loading data</td></tr>`;
-  }
-}
-
-function sortBy(col){
-  if(sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
-  histPage = 0;
-  loadHistory();
-}
-
-function changePage(dir){
-  histPage = Math.max(0, histPage + dir);
-  loadHistory();
-}
-
-function applyFilter(){
-  const from = document.getElementById("fFrom").value;
-  const to   = document.getElementById("fTo").value;
-  const game = document.getElementById("fGame").value;
-  filterParams = {};
-  if(from) filterParams.from = from;
-  if(to)   filterParams.to   = to;
-  if(game) filterParams.game = game;
-  histPage = 0;
-  loadHistory();
-}
-
-function clearFilter(){
-  ["fFrom","fTo"].forEach(id => document.getElementById(id).value = "");
-  document.getElementById("fGame").value = "";
-  filterParams = {};
-  histPage = 0;
-  loadHistory();
-}
-
-// ── Analysis ───────────────────────────────────────────────────────────────
-async function loadAnalysis(){
-  try {
-    analysisData = await apiFetch("/api/analysis");
-    renderAnalysis();
-  } catch(e){
-    document.getElementById("analysisMetrics").innerHTML = `<div style="color:#e74c3c">Error loading analysis</div>`;
-  }
-}
-
-function renderAnalysis(){
-  const d = analysisData;
-  document.getElementById("analysisMetrics").innerHTML = `
-    <div class="metric"><div class="metric-label">Total Numbers</div><div class="metric-val gold">${d.total_numbers}</div></div>
-    <div class="metric"><div class="metric-label">Hottest</div><div class="metric-val gold">${d.hot_numbers[0]?.number || "—"}</div></div>
-    <div class="metric"><div class="metric-label">Coldest</div><div class="metric-val blue">${d.cold_numbers[0]?.number || "—"}</div></div>
-    <div class="metric"><div class="metric-label">Odd %</div><div class="metric-val">${d.odd_pct}%</div></div>
-    <div class="metric"><div class="metric-label">Even %</div><div class="metric-val">${d.even_pct}%</div></div>
-    <div class="metric"><div class="metric-label">High %</div><div class="metric-val">${d.high_pct}%</div></div>
-  `;
-  document.getElementById("hotGrid").innerHTML =
-    d.hot_numbers.slice(0,20).map(x => `<div class="freq-item"><span class="ball ball-gold">${String(x.number).padStart(2,"0")}</span><span class="freq-count">${x.count}x</span></div>`).join("");
-  document.getElementById("coldGrid").innerHTML =
-    d.cold_numbers.slice(0,20).map(x => `<div class="freq-item"><span class="ball ball-blue">${String(x.number).padStart(2,"0")}</span><span class="freq-count">${x.count}x</span></div>`).join("");
-
-  // Odd/even
-  document.getElementById("oddEvenWrap").innerHTML = `
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
-      <span style="color:var(--gold);font-weight:600">Odd: ${d.odd_pct}% (${d.odd_count})</span>
-      <span style="color:var(--blue);font-weight:600">Even: ${d.even_pct}% (${d.even_count})</span>
-    </div>
-    <div class="dist-bar"><div class="dist-odd" style="width:${d.odd_pct}%"></div><div class="dist-even" style="width:${d.even_pct}%"></div></div>`;
-  document.getElementById("highLowWrap").innerHTML = `
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
-      <span style="color:var(--green);font-weight:600">Low 1–45: ${d.low_pct}% (${d.low_count})</span>
-      <span style="color:var(--red);font-weight:600">High 46–90: ${d.high_pct}% (${d.high_count})</span>
-    </div>
-    <div class="dist-bar"><div class="dist-odd" style="width:${d.low_pct}%;background:var(--green)"></div><div class="dist-even" style="width:${d.high_pct}%;background:var(--red)"></div></div>`;
-}
-
-// ── Predictions ────────────────────────────────────────────────────────────
-async function loadPredictions(){
-  const game = document.getElementById("predGame")?.value || "";
-  document.getElementById("predContainer").innerHTML = `<div class="loading"><span class="spinner"></span>Running prediction models...</div>`;
-  try {
-    const preds = await apiFetch("/api/predictions" + (game ? `?game=${encodeURIComponent(game)}` : ""));
-    document.getElementById("predContainer").innerHTML = preds.map((p,i) => {
-      const nums = p.numbers || [];
-      const conf = p.confidence || 60;
-      return `<div class="pred-card">
-        <div class="pred-info">
-          <div class="pred-name">${["🥇","🥈","🥉","4️⃣","5️⃣"][i] || ""} ${p.model}</div>
-          <div class="pred-desc">${p.description}</div>
-          <div class="pred-nums" style="margin-top:8px">${balls(nums,"ball-green")}</div>
-        </div>
-        <div class="conf-wrap">
-          <div class="conf-num">${conf}%</div>
-          <div class="conf-label">confidence</div>
-          <div class="conf-bar"><div class="conf-fill" style="width:${conf}%"></div></div>
-        </div>
-      </div>`;
-    }).join("");
-  } catch(e){
-    document.getElementById("predContainer").innerHTML = `<div style="color:#e74c3c">Error generating predictions</div>`;
-  }
-}
-
-// ── Charts ─────────────────────────────────────────────────────────────────
-async function renderCharts(){
-  if(!analysisData) analysisData = await apiFetch("/api/analysis").catch(()=>null);
-  if(!analysisData) return;
-  const d = analysisData;
-
-  // Frequency chart
-  const freq = d.frequency || {};
-  const sorted = Object.entries(freq).map(([k,v])=>({n:parseInt(k),v})).sort((a,b)=>b.v-a.v).slice(0,30);
-  const labels = sorted.map(x=>String(x.n));
-  const vals   = sorted.map(x=>x.v);
-  const colors = sorted.map((x,i) => i<5?"#b8860b":i>24?"#185FA5":"#888780");
-
-  if(freqChartInst) freqChartInst.destroy();
-  freqChartInst = new Chart(document.getElementById("freqChart"),{
-    type:"bar",
-    data:{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:4,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Drawn ${c.raw} times`}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}
-  });
-
-  // Trend — fetch from history
-  let trendData = [];
-  try {
-    const hist = await apiFetch("/api/results?limit=200");
-    const months = {};
-    hist.results.forEach(r => {
-      const k = r.draw_date?.slice(0,7) || "unknown";
-      months[k] = (months[k]||0)+1;
-    });
-    const keys = Object.keys(months).sort().slice(-12);
-    trendData = {labels: keys.map(k=>{const p=k.split("-");return MONTHS[parseInt(p[1])-1].slice(0,3)+" "+p[0].slice(2);}), vals: keys.map(k=>months[k])};
-  } catch(e){ trendData = {labels:[],vals:[]}; }
-
-  if(trendChartInst) trendChartInst.destroy();
-  trendChartInst = new Chart(document.getElementById("trendChart"),{
-    type:"line",
-    data:{labels:trendData.labels,datasets:[{data:trendData.vals,borderColor:"#b8860b",backgroundColor:"rgba(184,134,11,.08)",tension:.4,pointBackgroundColor:"#b8860b",pointRadius:4,fill:true}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}
-  });
-
-  // Odd/even doughnut
-  if(oeChartInst) oeChartInst.destroy();
-  oeChartInst = new Chart(document.getElementById("oeChart"),{
-    type:"doughnut",
-    data:{labels:["Odd","Even"],datasets:[{data:[d.odd_count,d.even_count],backgroundColor:["#b8860b","#185FA5"],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:"bottom",labels:{font:{size:11},boxWidth:12}}},cutout:"65%"}
-  });
-
-  // Range bar
-  const ranges = d.ranges || {};
-  if(rangeChartInst) rangeChartInst.destroy();
-  rangeChartInst = new Chart(document.getElementById("rangeChart"),{
-    type:"bar",
-    data:{labels:Object.keys(ranges),datasets:[{data:Object.values(ranges),backgroundColor:["#b8860b","#185FA5","#3B6D11","#993C1D","#534AB7"],borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:"rgba(128,128,128,.1)"}}}}
-  });
-}
-
-// ── Permutations ───────────────────────────────────────────────────────────
-function generatePerms(){
-  const raw = document.getElementById("permNums").value
-    .split(/[,\s]+/).map(x=>parseInt(x.trim())).filter(n=>!isNaN(n)&&n>=1&&n<=90);
-  const r = Math.min(parseInt(document.getElementById("permR").value)||5, raw.length);
-  if(raw.length < 2){ document.getElementById("permInfo").textContent="Enter at least 2 numbers."; return; }
-
-  const combos = [];
-  function comb(start, curr){
-    if(curr.length===r){ combos.push([...curr]); return; }
-    for(let i=start;i<raw.length;i++){ curr.push(raw[i]); comb(i+1,curr); curr.pop(); }
-  }
-  comb(0,[]);
-
-  const total = combos.length;
-  document.getElementById("permInfo").textContent =
-    `C(${raw.length}, ${r}) = ${total} combination${total!==1?"s":""} of ${r} from ${raw.length} numbers:`;
-
-  const BALL_COLORS = ["ball-gold","ball-blue","ball-green","ball-red","ball-gray","ball-gold","ball-blue"];
-  document.getElementById("permGrid").innerHTML = combos.map((c,i) => `
-    <div class="perm-item">
-      <span style="font-size:10px;color:var(--muted);min-width:22px">#${i+1}</span>
-      ${c.map(n=>`<span class="ball ball-sm ${BALL_COLORS[i%BALL_COLORS.length]}">${String(n).padStart(2,"0")}</span>`).join("")}
-    </div>`).join("");
-}
-
-// ── Boot ───────────────────────────────────────────────────────────────────
-async function boot(){
-  await loadLatest();
-}
-boot();
+async function doRefresh(){setStatus(false,"Refreshing...");try{const r=await fetch("/api/refresh",{method:"POST",signal:AbortSignal.timeout(90000)});const d=await r.json();if(d.success){await loadDB();alert("Done! "+(d.new_records||0)+" new draws added.");}else{alert("Error: "+(d.error||"unknown"));setStatus(false,"Error");}}catch(e){alert("Server not reachable. Showing demo data.");setStatus(false,"Demo data");}}
+function renderHist(){let data=[...filtered].sort((a,b)=>{const va=a[sortCol]||"",vb=b[sortCol]||"";return sortAsc?(va>vb?1:-1):(va<vb?1:-1);});const total=data.length,slice=data.slice(page*PER,(page+1)*PER);document.getElementById("hBody").innerHTML=slice.map(r=>'<tr><td>'+fd(r.draw_date)+'</td><td>'+(r.draw_time||"--")+'</td><td>'+gbadge(r.game_type)+'</td><td>'+balls(pn(r.numbers),"bn",true)+'</td><td style="font-size:11px;color:var(--mu)">'+(r.draw_number||"--")+'</td></tr>').join("")||'<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:2rem">No results found</td></tr>';document.getElementById("hCount").textContent="Showing "+(page*PER+1)+"-"+Math.min((page+1)*PER,total)+" of "+total;document.getElementById("bPrev").disabled=page===0;document.getElementById("bNext").disabled=(page+1)*PER>=total;}
+function sortBy(c){if(sortCol===c)sortAsc=!sortAsc;else{sortCol=c;sortAsc=false;}page=0;renderHist();}
+function pg(d){page=Math.max(0,page+d);renderHist();}
+function applyFilter(){const from=document.getElementById("fFrom").value,to=document.getElementById("fTo").value,game=document.getElementById("fGame").value;filtered=DB.filter(r=>{if(from&&r.draw_date<from)return false;if(to&&r.draw_date>to)return false;if(game&&r.game_type!==game)return false;return true;});page=0;renderHist();}
+function clearFilter(){["fFrom","fTo"].forEach(i=>document.getElementById(i).value="");document.getElementById("fGame").value="";filtered=[...DB];page=0;renderHist();}
+function renderAnalysis(){const data=DB,freq=getFreq(data),allN=data.flatMap(r=>pn(r.numbers)),total=allN.length;if(!total)return;const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]),hot=sorted.slice(0,20),cold=sorted.slice(-20).reverse();let odd=0,even=0,high=0,low=0;allN.forEach(n=>{if(n%2)odd++;else even++;if(n>45)high++;else low++;});const op=Math.round(odd/total*100),ep=100-op,lp=Math.round(low/total*100),hp=100-lp;document.getElementById("aM").innerHTML='<div class="mc"><div class="ml">Total Numbers</div><div class="mv gold">'+total+'</div></div><div class="mc"><div class="ml">Total Draws</div><div class="mv">'+data.length+'</div></div><div class="mc"><div class="ml">Hottest #</div><div class="mv gold">'+(hot[0]&&hot[0][0])+'</div></div><div class="mc"><div class="ml">Coldest #</div><div class="mv blue">'+(cold[0]&&cold[0][0])+'</div></div><div class="mc"><div class="ml">Odd %</div><div class="mv">'+op+'%</div></div><div class="mc"><div class="ml">High %</div><div class="mv">'+hp+'%</div></div>';document.getElementById("hotG").innerHTML=hot.map(([n,c])=>'<div class="fi">'+ball(n,"b1")+'<span class="fc">'+c+'x</span></div>').join("");document.getElementById("coldG").innerHTML=cold.map(([n,c])=>'<div class="fi">'+ball(n,"b2")+'<span class="fc">'+c+'x</span></div>').join("");document.getElementById("oeW").innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--gold);font-weight:700">Odd: '+op+'% ('+odd+')</span><span style="color:var(--blue);font-weight:700">Even: '+ep+'% ('+even+')</span></div><div class="dbar"><div style="width:'+op+'%;background:var(--gold)"></div><div style="width:'+ep+'%;background:var(--blue)"></div></div>';document.getElementById("hlW").innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--grn);font-weight:700">Low 1-45: '+lp+'% ('+low+')</span><span style="color:var(--red);font-weight:700">High 46-90: '+hp+'% ('+high+')</span></div><div class="dbar"><div style="width:'+lp+'%;background:var(--grn)"></div><div style="width:'+hp+'%;background:var(--red)"></div></div>';const pairs={};data.forEach(r=>{const n=pn(r.numbers);for(let i=0;i<n.length;i++)for(let j=i+1;j<n.length;j++){const k=n[i]+"-"+n[j];pairs[k]=(pairs[k]||0)+1;}});document.getElementById("pairsG").innerHTML=Object.entries(pairs).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([p,c])=>'<div class="chip"><strong>'+p+'</strong><span class="fc">'+c+'x</span></div>').join("");const trips={};data.forEach(r=>{const n=pn(r.numbers);for(let i=0;i<n.length;i++)for(let j=i+1;j<n.length;j++)for(let k=j+1;k<n.length;k++){const key=n[i]+"-"+n[j]+"-"+n[k];trips[key]=(trips[key]||0)+1;}});document.getElementById("tripletsG").innerHTML=Object.entries(trips).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([p,c])=>'<div class="chip"><strong>'+p+'</strong><span class="fc">'+c+'x</span></div>').join("");}
+function wpick(pool,weights,k){const ch=[],p=[...pool],w=[...weights];while(ch.length<k){const t=w.reduce((a,b)=>a+b,0),rv=Math.random()*t;let c=0;for(let i=0;i<p.length;i++){c+=w[i];if(rv<=c){ch.push(p[i]);p.splice(i,1);w.splice(i,1);break;}}}return ch.sort((a,b)=>a-b);}
+function renderPred(){const game=document.getElementById("pGame").value,data=game?DB.filter(r=>r.game_type===game):DB,freq=getFreq(data),sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]),pool=Array.from({length:90},(_,i)=>i+1),W=pool.map(n=>Math.pow((freq[n]||0)+1,1.5)),topNums=sorted.slice(0,5).map(x=>+x[0]).sort((a,b)=>a-b);const models=[{name:"Frequency Model",desc:"Top 5 most drawn numbers historically.",nums:topNums,conf:73},{name:"Weighted Random",desc:"Probability-weighted, hot numbers favoured.",nums:wpick(pool,W,5),conf:Math.round(58+Math.random()*10)},{name:"Hot + Cold Blend",desc:"3 hottest + 2 coldest overdue numbers.",nums:[...sorted.slice(0,3).map(x=>+x[0]),...sorted.slice(-3,-1).map(x=>+x[0])].sort((a,b)=>a-b),conf:Math.round(56+Math.random()*10)},{name:"Odd/Even Balanced",desc:"3 odd + 2 even numbers, frequency-weighted.",nums:(()=>{const odds=pool.filter(n=>n%2),evens=pool.filter(n=>!(n%2));return[...wpick(odds,odds.map(n=>Math.pow((freq[n]||0)+1,1.4)),3),...wpick(evens,evens.map(n=>Math.pow((freq[n]||0)+1,1.4)),2)].sort((a,b)=>a-b);})(),conf:Math.round(55+Math.random()*10)},{name:"High/Low Split",desc:"2 low (1-45) + 3 high (46-90) numbers.",nums:(()=>{const lo=pool.filter(n=>n<=45),hi=pool.filter(n=>n>45);return[...wpick(lo,lo.map(n=>Math.pow((freq[n]||0)+1,1.4)),2),...wpick(hi,hi.map(n=>Math.pow((freq[n]||0)+1,1.4)),3)].sort((a,b)=>a-b);})(),conf:Math.round(54+Math.random()*9)}];const icons=["1st","2nd","3rd","4th","5th"];document.getElementById("predBox").innerHTML=models.map((m,i)=>'<div class="pc"><div class="pi"><div class="pn">'+icons[i]+' '+m.name+'</div><div class="pd">'+m.desc+'</div><div style="margin-top:8px">'+balls(m.nums,"b3")+'</div></div><div class="cw"><div class="cn">'+m.conf+'%</div><div class="cl">confidence</div><div class="cbar"><div class="cfill" style="width:'+m.conf+'%"></div></div></div></div>').join("");}
+function dc(id){if(CI[id]){CI[id].destroy();delete CI[id];}}
+function renderCharts(){const freq=getFreq(DB),sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,30),labels=sorted.map(x=>x[0]),vals=sorted.map(x=>x[1]),colors=sorted.map((_,i)=>i<5?"#b8860b":i>24?"#185FA5":"#888780");dc("freqC");CI.freqC=new Chart(document.getElementById("freqC"),{type:"bar",data:{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}});const months={};DB.forEach(r=>{const k=(r.draw_date||"?").slice(0,7);months[k]=(months[k]||0)+1;});const mK=Object.keys(months).sort().slice(-12);dc("trendC");CI.trendC=new Chart(document.getElementById("trendC"),{type:"line",data:{labels:mK.map(k=>{const p=k.split("-");return MON[+p[1]-1].slice(0,3)+" "+p[0].slice(2);}),datasets:[{data:mK.map(k=>months[k]),borderColor:"#b8860b",backgroundColor:"rgba(184,134,11,.08)",tension:.4,pointBackgroundColor:"#b8860b",pointRadius:4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}});let odd=0,even=0;DB.forEach(r=>pn(r.numbers).forEach(n=>{if(n%2)odd++;else even++;}));dc("oeC");CI.oeC=new Chart(document.getElementById("oeC"),{type:"doughnut",data:{labels:["Odd","Even"],datasets:[{data:[odd,even],backgroundColor:["#b8860b","#185FA5"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{display:true,position:"bottom",labels:{font:{size:11},boxWidth:12}}}}});const ranges={"1-18":0,"19-36":0,"37-54":0,"55-72":0,"73-90":0};DB.forEach(r=>pn(r.numbers).forEach(n=>{if(n<=18)ranges["1-18"]++;else if(n<=36)ranges["19-36"]++;else if(n<=54)ranges["37-54"]++;else if(n<=72)ranges["55-72"]++;else ranges["73-90"]++;}));dc("rangeC");CI.rangeC=new Chart(document.getElementById("rangeC"),{type:"bar",data:{labels:Object.keys(ranges),datasets:[{data:Object.values(ranges),backgroundColor:["#b8860b","#185FA5","#2d6a0a","#993C1D","#534AB7"],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:"rgba(128,128,128,.1)"}}}}});}
+function genPerms(){const raw=[...new Set(document.getElementById("pNums").value.split(/[,\s]+/).map(x=>parseInt(x.trim())).filter(n=>!isNaN(n)&&n>=1&&n<=90))];const r=Math.min(parseInt(document.getElementById("pR").value)||5,raw.length);if(raw.length<2){document.getElementById("pInfo").textContent="Enter at least 2 numbers.";return;}const combos=[];(function c(s,cur){if(cur.length===r){combos.push([...cur]);return;}for(let i=s;i<raw.length;i++){cur.push(raw[i]);c(i+1,cur);cur.pop();}})(0,[]);const t=combos.length;document.getElementById("pInfo").textContent="C("+raw.length+","+r+") = "+t+" combination"+(t!==1?"s":"")+":";const BC=["b1","b2","b3","b4","bn"];document.getElementById("pGrid").innerHTML=combos.map((c,i)=>'<div class="pitem"><span style="font-size:10px;color:var(--mu);min-width:22px">#'+(i+1)+'</span>'+c.map(n=>'<span class="ball sm '+BC[i%BC.length]+'">'+z(n)+'</span>').join("")+'</div>').join("");}
+renderLatest();renderHist();renderPred();renderAnalysis();
+setStatus(false,"Demo data");
+loadDB();
 </script>
 </body>
 </html>
