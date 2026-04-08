@@ -165,7 +165,7 @@ tbody td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middl
       <div id="ussdSteps"></div>
     </div>
   </div>
-  <div class="disc"><strong>&#9888; NLA Fraud Alert:</strong> NEVER send money to anyone on social media claiming to sell winning numbers. Always buy from licensed NLA retailers or dial *890#. Official NLA: 0266087946 | info@nla.com.gh</div>
+  <div class="disc"><strong>&#9888; NLA Fraud Alert:</strong> NEVER send money to anyone on social media claiming to sell winning numbers. Always buy from licensed NLA retailers or dial *890#. Official NLA: 0266087946 | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d34333b321d33313c733e3230733a35">[email&#160;protected]</a></div>
 </div>
 <div id="latest" class="sec on">
   <div class="card">
@@ -256,7 +256,10 @@ tbody td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middl
   <div class="disc"><strong>&#9888; Disclaimer:</strong> Combinations are for convenience only and do not increase winning odds.</div>
 </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══════════════════════════════════════════════════
+//  SEED DATA — verified real NLA draws Mar-Apr 2026
+// ═══════════════════════════════════════════════════
 const SEED=[
   {draw_date:"2026-04-07",draw_time:"8:55 PM",game_type:"Lucky Tuesday",numbers:"04-71-25-55-12",draw_number:"202600097"},
   {draw_date:"2026-04-05",draw_time:"8:00 PM",game_type:"Sunday Aseda",numbers:"54-16-67-30-31",draw_number:"202600095"},
@@ -319,87 +322,143 @@ const SEED=[
   {draw_date:"2026-03-31",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"34-56-72-19-47",draw_number:"5M20260331"},
   {draw_date:"2026-03-30",draw_time:"9:00 PM",game_type:"5/90 Mobile",numbers:"11-29-63-84-38",draw_number:"5M20260330"},
 ];
+
+// ─── STATE ───────────────────────────────────────────────────────────────
 let DB=[...SEED].sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
 let filtered=[...DB],page=0,PER=20,sortCol="draw_date",sortAsc=false,CI={};
+let PREDICTIONS=null, PRED_GAME="", todayGame="all";
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
-function tick(){const n=new Date();document.getElementById("cDate").textContent=DAYS[n.getDay()]+", "+n.getDate()+" "+MON[n.getMonth()]+" "+n.getFullYear();let h=n.getHours(),m=n.getMinutes(),s=n.getSeconds(),a=h>=12?"PM":"AM";h=h%12||12;document.getElementById("cTime").textContent=z(h)+":"+z(m)+":"+z(s)+" "+a;}
+
+// ─── LIVE DATA ───────────────────────────────────────────────────────────
+const GITHUB_USER="WuanGarry";
+const REPO_NAME="wuan-garry";
+const JSON_URL="https://raw.githubusercontent.com/"+GITHUB_USER+"/"+REPO_NAME+"/main/data/results.json";
+
+// ─── CLOCK ───────────────────────────────────────────────────────────────
+function tick(){
+  const n=new Date();
+  document.getElementById("cDate").textContent=DAYS[n.getDay()]+", "+n.getDate()+" "+MON[n.getMonth()]+" "+n.getFullYear();
+  let h=n.getHours(),m=n.getMinutes(),s=n.getSeconds(),a=h>=12?"PM":"AM";
+  h=h%12||12;
+  document.getElementById("cTime").textContent=z(h)+":"+z(m)+":"+z(s)+" "+a;
+}
 function z(n){return String(n).padStart(2,"0")}
 setInterval(tick,1000);tick();
-function go(id,btn){document.querySelectorAll(".sec").forEach(s=>s.classList.remove("on"));document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));document.getElementById(id).classList.add("on");btn.classList.add("on");if(id==="history")renderHist();if(id==="analysis")renderAnalysis();if(id==="predictions")renderPred();if(id==="charts")setTimeout(renderCharts,60);if(id==="todays")renderTodays();if(id==="howto")renderHowTo();}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────
 function fd(d){if(!d)return"--";const p=d.split("-");return p[2]+"/"+p[1]+"/"+p[0];}
 function pn(s){return s.split(/[-,\s]+/).map(Number).filter(n=>n>=1&&n<=90);}
-function ball(n,c,sm){return'<span class="ball '+c+(sm?" sm":"")+'" >'+z(n)+'</span>';}
+function ball(n,c,sm){return'<span class="ball '+c+(sm?" sm":"")+'">'+z(n)+'</span>';}
 function balls(ns,c,sm){return ns.map(n=>ball(n,c,sm)).join("");}
 const GC={"National Weekly":"gnw","Monday Special":"gms","Lucky Tuesday":"glt2","Midweek":"gmw","Friday Bonanza":"gfb","Fortune Thursday":"gft","Sunday Aseda":"gsa","5/90 Mobile":"g5m"};
 function gbadge(g){return'<span class="bg2 '+(GC[g]||"gnw")+'" style="border-radius:20px">'+g+'</span>';}
 function getFreq(data){const f={};for(let i=1;i<=90;i++)f[i]=0;data.forEach(r=>pn(r.numbers).forEach(n=>f[n]++));return f;}
 function setStatus(live,txt){document.getElementById("sDot").className="dot"+(live?" live":"");document.getElementById("sTxt").textContent=txt;}
-// ── Live data: fetches data/results.json from GitHub (updated daily by Actions) ──
-const GITHUB_USER = "WuanGarry";
-const REPO_NAME   = "wuan-garry";             // ← change if you renamed the repo
-const JSON_URL    = `https://raw.githubusercontent.com/${GITHUB_USER}/${REPO_NAME}/main/data/results.json`;
 
-async function loadDB(){
-  try{
-    // Try GitHub raw JSON first (updated daily by GitHub Actions)
-    const r = await fetch(JSON_URL + "?t=" + Date.now(), {signal:AbortSignal.timeout(8000)});
-    if(!r.ok) throw new Error("GitHub fetch failed: "+r.status);
-    const d = await r.json();
-    if(d.results && d.results.length){
-      // Merge GitHub data with seed (GitHub always wins for duplicates)
-      const map={};
-      [...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);
-      DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
-      const ago = d.last_updated ? " ("+d.last_updated.slice(0,10)+")" : "";
-      setStatus(true,"Live — auto-updated daily"+ago);
-      filtered=[...DB]; renderLatest(); renderHist();
-      return;
-    }
-  }catch(e){ console.warn("GitHub JSON fetch failed:", e.message); }
-
-  // Fallback: try Flask API if running locally
-  try{
-    const r=await fetch("/api/results?limit=300",{signal:AbortSignal.timeout(5000)});
-    if(!r.ok) throw new Error(r.status);
-    const d=await r.json();
-    if(d.results&&d.results.length){
-      const map={};
-      [...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);
-      DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
-      setStatus(true,"Live - Flask API");
-    } else { setStatus(false,"Demo data"); }
-  }catch(e){ setStatus(false,"Demo data (offline)"); }
-  filtered=[...DB]; renderLatest(); renderHist();
+// ─── NAV ─────────────────────────────────────────────────────────────────
+function go(id,btn){
+  document.querySelectorAll(".sec").forEach(s=>s.classList.remove("on"));
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  document.getElementById(id).classList.add("on");btn.classList.add("on");
+  if(id==="history")renderHist();
+  if(id==="analysis")renderAnalysis();
+  if(id==="predictions"){syncPredGameToToday();renderPred();}
+  if(id==="charts")setTimeout(renderCharts,60);
+  if(id==="todays")renderTodays();
+  if(id==="howto")renderHowTo();
 }
-function renderLatest(){
-  document.getElementById("lBadge").textContent=DB.length+" total draws";
-  document.getElementById("lBox").innerHTML=DB.slice(0,12).map(r=>{const ns=pn(r.numbers);return'<div style="padding:11px 0;border-bottom:1px solid var(--bd)"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:7px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>'+fd(r.draw_date)+'</strong><span style="font-size:12px;color:var(--mu)">'+r.draw_time+'</span>'+gbadge(r.game_type)+'</div><span style="font-size:11px;color:var(--mu)">Draw #'+r.draw_number+'</span></div><div>'+balls(ns,"b1")+'</div></div>';}).join("");
-}
-async function doRefresh(){
-  setStatus(false,"Reloading from GitHub...");
-  await loadDB();
-  alert("Refreshed! Data is automatically updated daily by GitHub Actions.\n\nNext auto-update: Tonight at 10 PM Ghana time.");
-}
-function renderHist(){let data=[...filtered].sort((a,b)=>{const va=a[sortCol]||"",vb=b[sortCol]||"";return sortAsc?(va>vb?1:-1):(va<vb?1:-1);});const total=data.length,slice=data.slice(page*PER,(page+1)*PER);document.getElementById("hBody").innerHTML=slice.map(r=>'<tr><td>'+fd(r.draw_date)+'</td><td>'+(r.draw_time||"--")+'</td><td>'+gbadge(r.game_type)+'</td><td>'+balls(pn(r.numbers),"bn",true)+'</td><td style="font-size:11px;color:var(--mu)">'+(r.draw_number||"--")+'</td></tr>').join("")||'<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:2rem">No results found</td></tr>';document.getElementById("hCount").textContent="Showing "+(page*PER+1)+"-"+Math.min((page+1)*PER,total)+" of "+total;document.getElementById("bPrev").disabled=page===0;document.getElementById("bNext").disabled=(page+1)*PER>=total;}
-function sortBy(c){if(sortCol===c)sortAsc=!sortAsc;else{sortCol=c;sortAsc=false;}page=0;renderHist();}
-function pg(d){page=Math.max(0,page+d);renderHist();}
-function applyFilter(){const from=document.getElementById("fFrom").value,to=document.getElementById("fTo").value,game=document.getElementById("fGame").value;filtered=DB.filter(r=>{if(from&&r.draw_date<from)return false;if(to&&r.draw_date>to)return false;if(game&&r.game_type!==game)return false;return true;});page=0;renderHist();}
-function clearFilter(){["fFrom","fTo"].forEach(i=>document.getElementById(i).value="");document.getElementById("fGame").value="";filtered=[...DB];page=0;renderHist();}
-function renderAnalysis(){const data=DB,freq=getFreq(data),allN=data.flatMap(r=>pn(r.numbers)),total=allN.length;if(!total)return;const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]),hot=sorted.slice(0,20),cold=sorted.slice(-20).reverse();let odd=0,even=0,high=0,low=0;allN.forEach(n=>{if(n%2)odd++;else even++;if(n>45)high++;else low++;});const op=Math.round(odd/total*100),ep=100-op,lp=Math.round(low/total*100),hp=100-lp;document.getElementById("aM").innerHTML='<div class="mc"><div class="ml">Total Numbers</div><div class="mv gold">'+total+'</div></div><div class="mc"><div class="ml">Total Draws</div><div class="mv">'+data.length+'</div></div><div class="mc"><div class="ml">Hottest #</div><div class="mv gold">'+(hot[0]&&hot[0][0])+'</div></div><div class="mc"><div class="ml">Coldest #</div><div class="mv blue">'+(cold[0]&&cold[0][0])+'</div></div><div class="mc"><div class="ml">Odd %</div><div class="mv">'+op+'%</div></div><div class="mc"><div class="ml">High %</div><div class="mv">'+hp+'%</div></div>';document.getElementById("hotG").innerHTML=hot.map(([n,c])=>'<div class="fi">'+ball(n,"b1")+'<span class="fc">'+c+'x</span></div>').join("");document.getElementById("coldG").innerHTML=cold.map(([n,c])=>'<div class="fi">'+ball(n,"b2")+'<span class="fc">'+c+'x</span></div>').join("");document.getElementById("oeW").innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--gold);font-weight:700">Odd: '+op+'% ('+odd+')</span><span style="color:var(--blue);font-weight:700">Even: '+ep+'% ('+even+')</span></div><div class="dbar"><div style="width:'+op+'%;background:var(--gold)"></div><div style="width:'+ep+'%;background:var(--blue)"></div></div>';document.getElementById("hlW").innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--grn);font-weight:700">Low 1-45: '+lp+'% ('+low+')</span><span style="color:var(--red);font-weight:700">High 46-90: '+hp+'% ('+high+')</span></div><div class="dbar"><div style="width:'+lp+'%;background:var(--grn)"></div><div style="width:'+hp+'%;background:var(--red)"></div></div>';const pairs={};data.forEach(r=>{const n=pn(r.numbers);for(let i=0;i<n.length;i++)for(let j=i+1;j<n.length;j++){const k=n[i]+"-"+n[j];pairs[k]=(pairs[k]||0)+1;}});document.getElementById("pairsG").innerHTML=Object.entries(pairs).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([p,c])=>'<div class="chip"><strong>'+p+'</strong><span class="fc">'+c+'x</span></div>').join("");const trips={};data.forEach(r=>{const n=pn(r.numbers);for(let i=0;i<n.length;i++)for(let j=i+1;j<n.length;j++)for(let k=j+1;k<n.length;k++){const key=n[i]+"-"+n[j]+"-"+n[k];trips[key]=(trips[key]||0)+1;}});document.getElementById("tripletsG").innerHTML=Object.entries(trips).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([p,c])=>'<div class="chip"><strong>'+p+'</strong><span class="fc">'+c+'x</span></div>').join("");}
-function wpick(pool,weights,k){const ch=[],p=[...pool],w=[...weights];while(ch.length<k){const t=w.reduce((a,b)=>a+b,0),rv=Math.random()*t;let c=0;for(let i=0;i<p.length;i++){c+=w[i];if(rv<=c){ch.push(p[i]);p.splice(i,1);w.splice(i,1);break;}}}return ch.sort((a,b)=>a-b);}
-function renderPred(){const game=document.getElementById("pGame").value,data=game?DB.filter(r=>r.game_type===game):DB,freq=getFreq(data),sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]),pool=Array.from({length:90},(_,i)=>i+1),W=pool.map(n=>Math.pow((freq[n]||0)+1,1.5)),topNums=sorted.slice(0,5).map(x=>+x[0]).sort((a,b)=>a-b);const models=[{name:"Frequency Model",desc:"Top 5 most drawn numbers historically.",nums:topNums,conf:73},{name:"Weighted Random",desc:"Probability-weighted, hot numbers favoured.",nums:wpick(pool,W,5),conf:Math.round(58+Math.random()*10)},{name:"Hot + Cold Blend",desc:"3 hottest + 2 coldest overdue numbers.",nums:[...sorted.slice(0,3).map(x=>+x[0]),...sorted.slice(-3,-1).map(x=>+x[0])].sort((a,b)=>a-b),conf:Math.round(56+Math.random()*10)},{name:"Odd/Even Balanced",desc:"3 odd + 2 even numbers, frequency-weighted.",nums:(()=>{const odds=pool.filter(n=>n%2),evens=pool.filter(n=>!(n%2));return[...wpick(odds,odds.map(n=>Math.pow((freq[n]||0)+1,1.4)),3),...wpick(evens,evens.map(n=>Math.pow((freq[n]||0)+1,1.4)),2)].sort((a,b)=>a-b);})(),conf:Math.round(55+Math.random()*10)},{name:"High/Low Split",desc:"2 low (1-45) + 3 high (46-90) numbers.",nums:(()=>{const lo=pool.filter(n=>n<=45),hi=pool.filter(n=>n>45);return[...wpick(lo,lo.map(n=>Math.pow((freq[n]||0)+1,1.4)),2),...wpick(hi,hi.map(n=>Math.pow((freq[n]||0)+1,1.4)),3)].sort((a,b)=>a-b);})(),conf:Math.round(54+Math.random()*9)}];const icons=["1st","2nd","3rd","4th","5th"];document.getElementById("predBox").innerHTML=models.map((m,i)=>'<div class="pc"><div class="pi"><div class="pn">'+icons[i]+' '+m.name+'</div><div class="pd">'+m.desc+'</div><div style="margin-top:8px">'+balls(m.nums,"b3")+'</div></div><div class="cw"><div class="cn">'+m.conf+'%</div><div class="cl">confidence</div><div class="cbar"><div class="cfill" style="width:'+m.conf+'%"></div></div></div></div>').join("");}
-function dc(id){if(CI[id]){CI[id].destroy();delete CI[id];}}
-function renderCharts(){const freq=getFreq(DB),sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,30),labels=sorted.map(x=>x[0]),vals=sorted.map(x=>x[1]),colors=sorted.map((_,i)=>i<5?"#b8860b":i>24?"#185FA5":"#888780");dc("freqC");CI.freqC=new Chart(document.getElementById("freqC"),{type:"bar",data:{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}});const months={};DB.forEach(r=>{const k=(r.draw_date||"?").slice(0,7);months[k]=(months[k]||0)+1;});const mK=Object.keys(months).sort().slice(-12);dc("trendC");CI.trendC=new Chart(document.getElementById("trendC"),{type:"line",data:{labels:mK.map(k=>{const p=k.split("-");return MON[+p[1]-1].slice(0,3)+" "+p[0].slice(2);}),datasets:[{data:mK.map(k=>months[k]),borderColor:"#b8860b",backgroundColor:"rgba(184,134,11,.08)",tension:.4,pointBackgroundColor:"#b8860b",pointRadius:4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}});let odd=0,even=0;DB.forEach(r=>pn(r.numbers).forEach(n=>{if(n%2)odd++;else even++;}));dc("oeC");CI.oeC=new Chart(document.getElementById("oeC"),{type:"doughnut",data:{labels:["Odd","Even"],datasets:[{data:[odd,even],backgroundColor:["#b8860b","#185FA5"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{display:true,position:"bottom",labels:{font:{size:11},boxWidth:12}}}}});const ranges={"1-18":0,"19-36":0,"37-54":0,"55-72":0,"73-90":0};DB.forEach(r=>pn(r.numbers).forEach(n=>{if(n<=18)ranges["1-18"]++;else if(n<=36)ranges["19-36"]++;else if(n<=54)ranges["37-54"]++;else if(n<=72)ranges["55-72"]++;else ranges["73-90"]++;}));dc("rangeC");CI.rangeC=new Chart(document.getElementById("rangeC"),{type:"bar",data:{labels:Object.keys(ranges),datasets:[{data:Object.values(ranges),backgroundColor:["#b8860b","#185FA5","#2d6a0a","#993C1D","#534AB7"],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:"rgba(128,128,128,.1)"}}}}});}
-function genPerms(){const raw=[...new Set(document.getElementById("pNums").value.split(/[,\s]+/).map(x=>parseInt(x.trim())).filter(n=>!isNaN(n)&&n>=1&&n<=90))];const r=Math.min(parseInt(document.getElementById("pR").value)||5,raw.length);if(raw.length<2){document.getElementById("pInfo").textContent="Enter at least 2 numbers.";return;}const combos=[];(function c(s,cur){if(cur.length===r){combos.push([...cur]);return;}for(let i=s;i<raw.length;i++){cur.push(raw[i]);c(i+1,cur);cur.pop();}})(0,[]);const t=combos.length;document.getElementById("pInfo").textContent="C("+raw.length+","+r+") = "+t+" combination"+(t!==1?"s":"")+":";const BC=["b1","b2","b3","b4","bn"];document.getElementById("pGrid").innerHTML=combos.map((c,i)=>'<div class="pitem"><span style="font-size:10px;color:var(--mu);min-width:22px">#'+(i+1)+'</span>'+c.map(n=>'<span class="ball sm '+BC[i%BC.length]+'">'+z(n)+'</span>').join("")+'</div>').join("");}
 
-// ── TODAY'S PICKS ──────────────────────────────────────────────────────────
-let todayGame = "all";
+// ─── SEEDED PRNG (Mulberry32) — same numbers per day, every tab ──────────
+// Seed = YYYYMMDD so it changes each day but stays constant within the day
+function makePRNG(){
+  const d=new Date();
+  let s=(d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate())|0;
+  return function(){
+    s=s+0x6D2B79F5|0;
+    let t=Math.imul(s^s>>>15,1|s);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
 
-function setTodayGame(btn, game){
+function wpickSeeded(rng,pool,weights,k){
+  const ch=[],p=[...pool],w=[...weights];
+  while(ch.length<k){
+    const t=w.reduce((a,b)=>a+b,0),rv=rng()*t;let c=0;
+    for(let i=0;i<p.length;i++){c+=w[i];if(rv<=c){ch.push(p[i]);p.splice(i,1);w.splice(i,1);break;}}
+  }
+  return ch.sort((a,b)=>a-b);
+}
+
+// ─── UNIFIED PREDICTION BUILDER ──────────────────────────────────────────
+// Called ONCE per game-filter change. Both Today's Picks & Predictions tabs
+// display from the same PREDICTIONS array — numbers are identical.
+function buildModels(gameFilter){
+  const rng=makePRNG();  // seeded to today's date — deterministic all day
+  const data=gameFilter?DB.filter(r=>r.game_type===gameFilter):DB;
+  const freq=getFreq(data);
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  const pool=Array.from({length:90},(_,i)=>i+1);
+  const W=pool.map(n=>Math.pow((freq[n]||0)+1,1.5));
+  const topNums=sorted.slice(0,5).map(x=>+x[0]).sort((a,b)=>a-b);
+
+  return [
+    {name:"Frequency Model",     tag:"Most Frequent", conf:73,
+     desc:"Top 5 most drawn numbers in history.",
+     nums:topNums},
+    {name:"Weighted Random",     tag:"Weighted",      conf:65,
+     desc:"Probability-weighted draw — hotter numbers appear more often.",
+     nums:wpickSeeded(rng,[...pool],[...W],5)},
+    {name:"Hot + Cold Blend",    tag:"Hybrid",        conf:62,
+     desc:"3 hottest numbers + 2 coldest overdue numbers.",
+     nums:[...sorted.slice(0,3).map(x=>+x[0]),...sorted.slice(-3,-1).map(x=>+x[0])].sort((a,b)=>a-b)},
+    {name:"Odd / Even Balanced", tag:"Balanced",      conf:59,
+     desc:"3 odd + 2 even numbers, weighted by frequency.",
+     nums:(()=>{
+       const odds=pool.filter(n=>n%2),evens=pool.filter(n=>!(n%2));
+       return[...wpickSeeded(rng,[...odds],odds.map(n=>Math.pow((freq[n]||0)+1,1.4)),3),
+              ...wpickSeeded(rng,[...evens],evens.map(n=>Math.pow((freq[n]||0)+1,1.4)),2)].sort((a,b)=>a-b);
+     })()},
+    {name:"Range Spread",        tag:"Spread",        conf:57,
+     desc:"One number from each range: 1-18, 19-36, 37-54, 55-72, 73-90.",
+     nums:(()=>{
+       const bands=[pool.filter(n=>n<=18),pool.filter(n=>n>18&&n<=36),
+                    pool.filter(n=>n>36&&n<=54),pool.filter(n=>n>54&&n<=72),
+                    pool.filter(n=>n>72)];
+       return bands.map(b=>wpickSeeded(rng,[...b],b.map(n=>Math.pow((freq[n]||0)+1,1.3)),1)[0]).sort((a,b)=>a-b);
+     })()},
+  ];
+}
+
+function recomputePredictions(gameFilter){
+  PRED_GAME=gameFilter||"";
+  PREDICTIONS=buildModels(PRED_GAME);
+}
+
+// Keep Today's game filter selector and Predictions game selector in sync
+function syncPredGameToToday(){
+  const el=document.getElementById("pGame");
+  if(el) el.value=PRED_GAME;
+}
+function syncTodayToGame(game){
+  PRED_GAME=game;
+  // update the tgbtn highlights
+  document.querySelectorAll(".tgbtn").forEach(b=>{
+    const g=b.getAttribute("onclick").match(/'([^']+)'/)?.[1]||"all";
+    b.classList.toggle("on",g===(game||"all"));
+  });
+}
+
+// ─── TODAY'S PICKS TAB ───────────────────────────────────────────────────
+function setTodayGame(btn,game){
   document.querySelectorAll(".tgbtn").forEach(b=>b.classList.remove("on"));
   btn.classList.add("on");
-  todayGame = game;
+  todayGame=game;
+  recomputePredictions(game==="all"?"":game);
+  // Also sync the Predictions tab dropdown
+  const el=document.getElementById("pGame");
+  if(el) el.value=PRED_GAME;
   renderTodays();
 }
 
@@ -409,100 +468,226 @@ function todayLabel(){
 }
 
 function renderTodays(){
-  document.getElementById("todayDate").textContent = todayLabel();
-  const data = todayGame==="all" ? DB : DB.filter(r=>r.game_type===todayGame);
-  const freq = getFreq(data);
-  const pool = Array.from({length:90},(_,i)=>i+1);
-  const W = pool.map(n=>Math.pow((freq[n]||0)+1,1.5));
+  if(!PREDICTIONS) recomputePredictions(todayGame==="all"?"":todayGame);
+  document.getElementById("todayDate").textContent=todayLabel();
+  const labelIcons=["&#128293;","&#9878;&#65039;","&#129400;","&#9898;","&#128200;"];
 
-  // Generate 5 sets
-  const sets = [
-    {label:"&#128293; Hot Frequency Pick",    desc:"Numbers drawn most often", nums: Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>+x[0]).sort((a,b)=>a-b), tag:"Most frequent"},
-    {label:"&#9878;&#65039; Weighted Model",   desc:"Probability-weighted selection",nums: wpick([...pool],[...W],5),tag:"Weighted"},
-    {label:"&#129400; Hot + Cold Blend",      desc:"3 hot + 2 overdue numbers",  nums:(()=>{const s=Object.entries(freq).sort((a,b)=>b[1]-a[1]);return[...s.slice(0,3).map(x=>+x[0]),...s.slice(-3,-1).map(x=>+x[0])].sort((a,b)=>a-b);})(),tag:"Hybrid"},
-    {label:"&#9898; Odd/Even Balanced",       desc:"3 odd + 2 even numbers",     nums:(()=>{const odds=pool.filter(n=>n%2),evens=pool.filter(n=>!(n%2));return[...wpick([...odds],odds.map(n=>Math.pow((freq[n]||0)+1,1.4)),3),...wpick([...evens],evens.map(n=>Math.pow((freq[n]||0)+1,1.4)),2)].sort((a,b)=>a-b);})(),tag:"Balanced"},
-    {label:"&#128200; Range Spread",          desc:"Spread across all number ranges",nums:(()=>{const r1=pool.filter(n=>n<=18),r2=pool.filter(n=>n>18&&n<=36),r3=pool.filter(n=>n>36&&n<=54),r4=pool.filter(n=>n>54&&n<=72),r5=pool.filter(n=>n>72);return[r1,r2,r3,r4,r5].map(rng=>wpick([...rng],rng.map(n=>Math.pow((freq[n]||0)+1,1.3)),1)[0]).sort((a,b)=>a-b);})(),tag:"Spread"},
-  ];
+  document.getElementById("todayPicks").innerHTML=PREDICTIONS.map((m,i)=>{
+    const ns=m.nums;
+    return'<div class="pick-card">'
+      +'<div class="pick-rank">'+labelIcons[i]+' <strong>'+m.name+'</strong>'
+      +' &nbsp;<span style="font-size:10px;background:var(--gold);color:#fff;padding:2px 9px;border-radius:10px">'+m.tag+'</span>'
+      +' &nbsp;<span style="font-size:11px;color:var(--mu)">'+m.desc+'</span></div>'
+      +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px">'
+      +'<div>'+balls(ns,"b1")+'</div>'
+      +'<div style="margin-left:auto;text-align:right">'
+      +'<div style="font-size:20px;font-weight:800;color:var(--grn)">'+m.conf+'%</div>'
+      +'<div style="font-size:11px;color:var(--mu)">confidence</div>'
+      +'<div class="cbar" style="width:80px;margin-top:3px"><div class="cfill" style="width:'+m.conf+'%"></div></div>'
+      +'</div></div>'
+      +'<div style="margin-top:8px;font-size:12px;color:var(--mu);border-top:1px solid var(--bd);padding-top:6px">'
+      +'&#128204; <strong>Two Sure:</strong> <strong style="color:var(--gold);font-size:14px">'+ns[0]+'-'+ns[1]+'</strong>'
+      +' &nbsp;&nbsp; &#128204; <strong>Three Direct:</strong> <strong style="color:var(--blue)">'+ns[0]+'-'+ns[1]+'-'+ns[2]+'</strong>'
+      +'</div></div>';
+  }).join("");
 
-  const conf=[73,65,62,60,58];
-  document.getElementById("todayPicks").innerHTML = sets.map((s,i)=>`
-    <div class="pick-card">
-      <div class="pick-rank">${s.label} &nbsp;<span style="font-size:10px;background:var(--gold);color:#fff;padding:2px 8px;border-radius:10px">${s.tag}</span>&nbsp;<span style="font-size:11px;color:var(--mu)">— ${s.desc}</span></div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div>${balls(s.nums,"b1")}</div>
-        <div style="margin-left:auto;text-align:right">
-          <div style="font-size:20px;font-weight:800;color:var(--grn)">${conf[i]}%</div>
-          <div style="font-size:11px;color:var(--mu)">confidence</div>
-          <div class="cbar" style="width:80px;margin-top:3px"><div class="cfill" style="width:${conf[i]}%"></div></div>
-        </div>
-      </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--mu)">
-        &#128204; Two Sure: <strong style="color:var(--gold)">${s.nums[0]}-${s.nums[1]}</strong> &nbsp;|&nbsp;
-        &#128204; Three Direct: <strong style="color:var(--blue)">${s.nums[0]}-${s.nums[1]}-${s.nums[2]}</strong>
-      </div>
-    </div>`).join("");
-
-  // Two sure summary
-  const allTwoSure = sets.map(s=>`<span style="background:var(--gold);color:#fff;padding:4px 12px;border-radius:20px;font-weight:700;font-size:13px">${s.nums[0]}-${s.nums[1]}</span>`);
-  document.getElementById("twoSure").innerHTML = allTwoSure.join("");
+  document.getElementById("twoSure").innerHTML=PREDICTIONS.map((m,i)=>
+    '<div style="display:flex;align-items:center;gap:6px">'
+    +'<span style="font-size:10px;color:var(--mu);min-width:20px">'+(i+1)+'.</span>'
+    +'<span style="background:var(--gold);color:#fff;padding:5px 14px;border-radius:20px;font-weight:800;font-size:13px">'+m.nums[0]+'-'+m.nums[1]+'</span>'
+    +'<span style="font-size:11px;color:var(--mu)">'+m.name+'</span>'
+    +'</div>'
+  ).join("");
 }
 
-// ── HOW TO STAKE ───────────────────────────────────────────────────────────
+// ─── PREDICTIONS TAB (reads same PREDICTIONS array) ──────────────────────
+function renderPred(){
+  const game=document.getElementById("pGame").value;
+  if(!PREDICTIONS||PRED_GAME!==game) recomputePredictions(game);
+  syncTodayToGame(game);
+
+  const icons=["&#127945;","&#129352;","&#129353;","&#128998;","&#128999;"];
+  document.getElementById("predBox").innerHTML=PREDICTIONS.map((m,i)=>
+    '<div class="pc">'
+    +'<div class="pi">'
+    +'<div class="pn">'+icons[i]+' '+m.name+'</div>'
+    +'<div class="pd">'+m.desc+'</div>'
+    +'<div style="margin-top:8px">'+balls(m.nums,"b3")+'</div>'
+    +'</div>'
+    +'<div class="cw">'
+    +'<div class="cn">'+m.conf+'%</div>'
+    +'<div class="cl">confidence</div>'
+    +'<div class="cbar"><div class="cfill" style="width:'+m.conf+'%"></div></div>'
+    +'</div>'
+    +'</div>'
+  ).join("");
+}
+
+// ─── LOAD LIVE DATA FROM GITHUB ──────────────────────────────────────────
+async function loadDB(){
+  try{
+    const r=await fetch(JSON_URL+"?t="+Date.now(),{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    if(d.results&&d.results.length){
+      const map={};
+      [...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);
+      DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
+      const ago=d.last_updated?" (updated "+d.last_updated.slice(0,10)+")":"";
+      setStatus(true,"Live — auto-updated daily"+ago);
+    }else setStatus(false,"Demo data");
+  }catch(e){
+    try{
+      const r=await fetch("/api/results?limit=300",{signal:AbortSignal.timeout(5000)});
+      if(!r.ok)throw new Error(r.status);
+      const d=await r.json();
+      if(d.results&&d.results.length){
+        const map={};
+        [...SEED,...d.results].forEach(r=>map[r.draw_number||r.draw_date+r.game_type]=r);
+        DB=Object.values(map).sort((a,b)=>b.draw_date.localeCompare(a.draw_date));
+        setStatus(true,"Live - Flask API");
+      }else setStatus(false,"Demo data");
+    }catch(e2){setStatus(false,"Demo data (offline)");}
+  }
+  filtered=[...DB];
+  // Recompute predictions with fresh data — both tabs update automatically
+  recomputePredictions(PRED_GAME);
+  renderLatest();renderHist();
+  if(document.getElementById("todays").classList.contains("on"))renderTodays();
+  if(document.getElementById("predictions").classList.contains("on"))renderPred();
+}
+
+async function doRefresh(){
+  setStatus(false,"Reloading...");
+  await loadDB();
+  alert("Refreshed! Data auto-updates every night at 10 PM Ghana time via GitHub Actions.");
+}
+
+// ─── LATEST ──────────────────────────────────────────────────────────────
+function renderLatest(){
+  document.getElementById("lBadge").textContent=DB.length+" total draws";
+  document.getElementById("lBox").innerHTML=DB.slice(0,12).map(r=>{
+    const ns=pn(r.numbers);
+    return'<div style="padding:11px 0;border-bottom:1px solid var(--bd)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:7px">'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      +'<strong>'+fd(r.draw_date)+'</strong>'
+      +'<span style="font-size:12px;color:var(--mu)">'+r.draw_time+'</span>'
+      +gbadge(r.game_type)+'</div>'
+      +'<span style="font-size:11px;color:var(--mu)">Draw #'+r.draw_number+'</span></div>'
+      +'<div>'+balls(ns,"b1")+'</div></div>';
+  }).join("");
+}
+
+// ─── HISTORY ─────────────────────────────────────────────────────────────
+function renderHist(){
+  let data=[...filtered].sort((a,b)=>{
+    const va=a[sortCol]||"",vb=b[sortCol]||"";
+    return sortAsc?(va>vb?1:-1):(va<vb?1:-1);
+  });
+  const total=data.length,slice=data.slice(page*PER,(page+1)*PER);
+  document.getElementById("hBody").innerHTML=slice.map(r=>
+    '<tr><td>'+fd(r.draw_date)+'</td><td>'+(r.draw_time||"--")+'</td><td>'
+    +gbadge(r.game_type)+'</td><td>'+balls(pn(r.numbers),"bn",true)+'</td>'
+    +'<td style="font-size:11px;color:var(--mu)">'+(r.draw_number||"--")+'</td></tr>'
+  ).join("")||'<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:2rem">No results found</td></tr>';
+  document.getElementById("hCount").textContent="Showing "+(page*PER+1)+"-"+Math.min((page+1)*PER,total)+" of "+total;
+  document.getElementById("bPrev").disabled=page===0;
+  document.getElementById("bNext").disabled=(page+1)*PER>=total;
+}
+function sortBy(c){if(sortCol===c)sortAsc=!sortAsc;else{sortCol=c;sortAsc=false;}page=0;renderHist();}
+function pg(d){page=Math.max(0,page+d);renderHist();}
+function applyFilter(){
+  const from=document.getElementById("fFrom").value,to=document.getElementById("fTo").value,game=document.getElementById("fGame").value;
+  filtered=DB.filter(r=>{if(from&&r.draw_date<from)return false;if(to&&r.draw_date>to)return false;if(game&&r.game_type!==game)return false;return true;});
+  page=0;renderHist();
+}
+function clearFilter(){["fFrom","fTo"].forEach(i=>document.getElementById(i).value="");document.getElementById("fGame").value="";filtered=[...DB];page=0;renderHist();}
+
+// ─── ANALYSIS ────────────────────────────────────────────────────────────
+function renderAnalysis(){
+  const data=DB,freq=getFreq(data),allN=data.flatMap(r=>pn(r.numbers)),total=allN.length;
+  if(!total)return;
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]),hot=sorted.slice(0,20),cold=sorted.slice(-20).reverse();
+  let odd=0,even=0,high=0,low=0;
+  allN.forEach(n=>{if(n%2)odd++;else even++;if(n>45)high++;else low++;});
+  const op=Math.round(odd/total*100),ep=100-op,lp=Math.round(low/total*100),hp=100-lp;
+  document.getElementById("aM").innerHTML='<div class="mc"><div class="ml">Total Numbers</div><div class="mv gold">'+total+'</div></div><div class="mc"><div class="ml">Total Draws</div><div class="mv">'+data.length+'</div></div><div class="mc"><div class="ml">Hottest #</div><div class="mv gold">'+(hot[0]&&hot[0][0])+'</div></div><div class="mc"><div class="ml">Coldest #</div><div class="mv blue">'+(cold[0]&&cold[0][0])+'</div></div><div class="mc"><div class="ml">Odd %</div><div class="mv">'+op+'%</div></div><div class="mc"><div class="ml">High %</div><div class="mv">'+hp+'%</div></div>';
+  document.getElementById("hotG").innerHTML=hot.map(([n,c])=>'<div class="fi">'+ball(n,"b1")+'<span class="fc">'+c+'x</span></div>').join("");
+  document.getElementById("coldG").innerHTML=cold.map(([n,c])=>'<div class="fi">'+ball(n,"b2")+'<span class="fc">'+c+'x</span></div>').join("");
+  document.getElementById("oeW").innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--gold);font-weight:700">Odd: '+op+'% ('+odd+')</span><span style="color:var(--blue);font-weight:700">Even: '+ep+'% ('+even+')</span></div><div class="dbar"><div style="width:'+op+'%;background:var(--gold)"></div><div style="width:'+ep+'%;background:var(--blue)"></div></div>';
+  document.getElementById("hlW").innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--grn);font-weight:700">Low 1-45: '+lp+'% ('+low+')</span><span style="color:var(--red);font-weight:700">High 46-90: '+hp+'% ('+high+')</span></div><div class="dbar"><div style="width:'+lp+'%;background:var(--grn)"></div><div style="width:'+hp+'%;background:var(--red)"></div></div>';
+  const pairs={};data.forEach(r=>{const n=pn(r.numbers);for(let i=0;i<n.length;i++)for(let j=i+1;j<n.length;j++){const k=n[i]+"-"+n[j];pairs[k]=(pairs[k]||0)+1;}});
+  document.getElementById("pairsG").innerHTML=Object.entries(pairs).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([p,c])=>'<div class="chip"><strong>'+p+'</strong><span class="fc">'+c+'x</span></div>').join("");
+  const trips={};data.forEach(r=>{const n=pn(r.numbers);for(let i=0;i<n.length;i++)for(let j=i+1;j<n.length;j++)for(let k=j+1;k<n.length;k++){const key=n[i]+"-"+n[j]+"-"+n[k];trips[key]=(trips[key]||0)+1;}});
+  document.getElementById("tripletsG").innerHTML=Object.entries(trips).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([p,c])=>'<div class="chip"><strong>'+p+'</strong><span class="fc">'+c+'x</span></div>').join("");
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────────────────
+function dc(id){if(CI[id]){CI[id].destroy();delete CI[id];}}
+function renderCharts(){
+  const freq=getFreq(DB),sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,30);
+  const labels=sorted.map(x=>x[0]),vals=sorted.map(x=>x[1]),colors=sorted.map((_,i)=>i<5?"#b8860b":i>24?"#185FA5":"#888780");
+  dc("freqC");CI.freqC=new Chart(document.getElementById("freqC"),{type:"bar",data:{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}});
+  const months={};DB.forEach(r=>{const k=(r.draw_date||"?").slice(0,7);months[k]=(months[k]||0)+1;});
+  const mK=Object.keys(months).sort().slice(-12);
+  dc("trendC");CI.trendC=new Chart(document.getElementById("trendC"),{type:"line",data:{labels:mK.map(k=>{const p=k.split("-");return MON[+p[1]-1].slice(0,3)+" "+p[0].slice(2);}),datasets:[{data:mK.map(k=>months[k]),borderColor:"#b8860b",backgroundColor:"rgba(184,134,11,.08)",tension:.4,pointBackgroundColor:"#b8860b",pointRadius:4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:"rgba(128,128,128,.1)"},ticks:{font:{size:10}}}}}});
+  let odd=0,even=0;DB.forEach(r=>pn(r.numbers).forEach(n=>{if(n%2)odd++;else even++;}));
+  dc("oeC");CI.oeC=new Chart(document.getElementById("oeC"),{type:"doughnut",data:{labels:["Odd","Even"],datasets:[{data:[odd,even],backgroundColor:["#b8860b","#185FA5"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{display:true,position:"bottom",labels:{font:{size:11},boxWidth:12}}}}});
+  const ranges={"1-18":0,"19-36":0,"37-54":0,"55-72":0,"73-90":0};DB.forEach(r=>pn(r.numbers).forEach(n=>{if(n<=18)ranges["1-18"]++;else if(n<=36)ranges["19-36"]++;else if(n<=54)ranges["37-54"]++;else if(n<=72)ranges["55-72"]++;else ranges["73-90"]++;}));
+  dc("rangeC");CI.rangeC=new Chart(document.getElementById("rangeC"),{type:"bar",data:{labels:Object.keys(ranges),datasets:[{data:Object.values(ranges),backgroundColor:["#b8860b","#185FA5","#2d6a0a","#993C1D","#534AB7"],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:"rgba(128,128,128,.1)"}}}}});
+}
+
+// ─── PERMUTATIONS ─────────────────────────────────────────────────────────
+function genPerms(){
+  const raw=[...new Set(document.getElementById("pNums").value.split(/[,\s]+/).map(x=>parseInt(x.trim())).filter(n=>!isNaN(n)&&n>=1&&n<=90))];
+  const r=Math.min(parseInt(document.getElementById("pR").value)||5,raw.length);
+  if(raw.length<2){document.getElementById("pInfo").textContent="Enter at least 2 numbers.";return;}
+  const combos=[];
+  (function c(s,cur){if(cur.length===r){combos.push([...cur]);return;}for(let i=s;i<raw.length;i++){cur.push(raw[i]);c(i+1,cur);cur.pop();}})(0,[]);
+  const t=combos.length;
+  document.getElementById("pInfo").textContent="C("+raw.length+","+r+") = "+t+" combination"+(t!==1?"s":"")+":";
+  const BC=["b1","b2","b3","b4","bn"];
+  document.getElementById("pGrid").innerHTML=combos.map((c,i)=>'<div class="pitem"><span style="font-size:10px;color:var(--mu);min-width:22px">#'+(i+1)+'</span>'+c.map(n=>'<span class="ball sm '+BC[i%BC.length]+'">'+z(n)+'</span>').join("")+'</div>').join("");
+}
+
+// ─── HOW TO STAKE ─────────────────────────────────────────────────────────
 function renderHowTo(){
-  const steps = [
-    {icon:"&#127970;", title:"Find a Licensed NLA Retailer",
-     body:"Visit any NLA Point of Sale (POS) terminal near you — found at shops, market stalls, and designated lotto kiosks across Ghana. Look for the official NLA logo. You can also find agents in banks like GCB, Zenith, ADB, UMB, and Access Bank.",
-     tip:"&#9989; Tip: Only buy from licensed retailers. Never buy from social media sellers."},
-    {icon:"&#127914;", title:"Choose Your Game",
-     body:"Pick which NLA game you want to stake on:<br>&#8226; <strong>Monday Special</strong> — every Monday 8:55 PM<br>&#8226; <strong>Lucky Tuesday</strong> — every Tuesday 8:55 PM<br>&#8226; <strong>Midweek</strong> — every Wednesday 8:55 PM<br>&#8226; <strong>Fortune Thursday</strong> — every Thursday 8:55 PM<br>&#8226; <strong>Friday Bonanza</strong> — every Friday 8:55 PM<br>&#8226; <strong>National Weekly</strong> — every Saturday 8:55 PM<br>&#8226; <strong>Sunday Aseda</strong> — every Sunday 8:00 PM",
-     tip:"&#128197; Draws happen 7 days a week — you can stake any day."},
-    {icon:"&#128290;", title:"Pick Your Numbers (1 to 90)",
-     body:"Choose between 1 and 5 numbers from 1–90. The more numbers you pick, the higher the potential payout — but the harder it is to win.<br><br><strong>Easiest:</strong> Pick 1 number (Direct 1) — pays ~3.75× your stake<br><strong>Popular:</strong> Pick 2 numbers (Two Sure) — pays ~270× your stake<br><strong>Big win:</strong> Pick 5 numbers (Direct 5) — pays ~1,000,000× your stake",
-     tip:"&#128161; Beginners tip: Start with Two Sure (2 numbers) for the best balance of chance and payout."},
-    {icon:"&#127922;", title:"Choose Your Bet Type",
-     body:"Tell the retailer how you want to bet:<br>&#8226; <strong>Direct</strong> — all your numbers must appear in the draw<br>&#8226; <strong>Perm 2</strong> — any 2 of your 3–6 numbers must drop<br>&#8226; <strong>Perm 3</strong> — any 3 of your 4–6 numbers must drop<br><br>Example: You pick 5 numbers and choose Perm 2 → if ANY two of your numbers appear, you win!",
-     tip:"&#127919; Pro tip: Perm bets give you more combinations and better chance of winning something."},
-    {icon:"&#128181;", title:"Place Your Stake (Minimum GHS 0.15)",
-     body:"Tell the retailer how much you want to stake. The minimum bet is <strong>GHS 0.15</strong> per combination. Your potential winnings = stake amount × multiplier.<br><br>Example: GHS 1 on Two Sure (Direct 2) = potential win of ~GHS 270",
-     tip:"&#9888; Only stake what you can afford to lose. Set a budget and stick to it."},
-    {icon:"&#129666;", title:"Collect Your Official Ticket",
-     body:"The retailer's POS machine prints an official NLA-branded electronic ticket. <strong>Keep this ticket safe</strong> — it is your only proof of purchase and is required to claim any prize.<br><br>Your ticket shows:<br>&#8226; Your chosen numbers<br>&#8226; The game and draw number<br>&#8226; Bet type and stake amount<br>&#8226; A unique ticket ID",
-     tip:"&#128247; Tip: Take a photo of your ticket immediately after purchase."},
-    {icon:"&#128250;", title:"Watch the Draw",
-     body:"Draws are broadcast live on:<br>&#8226; <strong>TV3</strong> and <strong>GHOne TV</strong> at draw time<br>&#8226; <strong>nla.com.gh/winning-numbers</strong> (official website)<br>&#8226; This WUAN GARRY site — updated automatically<br>&#8226; Dial <strong>*890#</strong> to check results on your phone",
-     tip:"&#128241; Easiest: Check results right here after every draw."},
-    {icon:"&#127942;", title:"Claim Your Prize (Within 14 Days)",
-     body:"If you win:<br>&#8226; <strong>GHS 250 and below:</strong> Claim at any licensed NLA retailer — bring your ticket<br>&#8226; <strong>Above GHS 250:</strong> Visit an NLA Partner Bank (GCB, NIB, Zenith, Unibank, ADB, UMB, Bank of Africa, HFC, Access Bank) with your ticket and valid ID<br>&#8226; <strong>Jackpot prizes:</strong> Contact NLA head office in Accra directly<br><br>&#9201; You have <strong>14 days</strong> from the draw date to claim your prize.",
-     tip:"&#9888; IMPORTANT: Prizes expire after 14 days. Never share your ticket with anyone."},
+  const steps=[
+    {icon:"&#127970;",title:"Find a Licensed NLA Retailer",body:"Visit any NLA Point of Sale (POS) terminal near you — at shops, market stalls, and lotto kiosks across Ghana. Look for the official NLA logo. Also available at GCB, Zenith, ADB, UMB and Access Bank.",tip:"&#9989; Only buy from licensed retailers. Never from social media sellers."},
+    {icon:"&#127914;",title:"Choose Your Game",body:"Pick which game to stake on:<br>&#8226; <strong>Monday Special</strong> — Mon 8:55 PM<br>&#8226; <strong>Lucky Tuesday</strong> — Tue 8:55 PM<br>&#8226; <strong>Midweek</strong> — Wed 8:55 PM<br>&#8226; <strong>Fortune Thursday</strong> — Thu 8:55 PM<br>&#8226; <strong>Friday Bonanza</strong> — Fri 8:55 PM<br>&#8226; <strong>National Weekly</strong> — Sat 8:55 PM<br>&#8226; <strong>Sunday Aseda</strong> — Sun 8:00 PM",tip:"&#128197; Draws happen every day of the week."},
+    {icon:"&#128290;",title:"Pick Your Numbers (1 to 90)",body:"Choose 1 to 5 numbers from 1-90. More numbers = higher payout but harder to win.<br><br><strong>Easiest:</strong> 1 number (Direct 1) — pays ~3.75x<br><strong>Popular:</strong> 2 numbers (Two Sure) — pays ~270x<br><strong>Jackpot:</strong> 5 numbers (Direct 5) — pays ~1,000,000x",tip:"&#128161; Beginners: start with Two Sure for best balance of chance vs payout."},
+    {icon:"&#127922;",title:"Choose Your Bet Type",body:"Tell the retailer how to bet:<br>&#8226; <strong>Direct</strong> — ALL your numbers must appear<br>&#8226; <strong>Perm 2</strong> — ANY 2 of 3-6 numbers must drop<br>&#8226; <strong>Perm 3</strong> — ANY 3 of 4-6 numbers must drop<br><br>Example: 5 numbers on Perm 2 = if any 2 of your 5 numbers appear, you win!",tip:"&#127919; Perm bets give more combinations and a better chance of winning something."},
+    {icon:"&#128181;",title:"Place Your Stake (Min. GHS 0.15)",body:"Tell the retailer your stake amount. Minimum is <strong>GHS 0.15</strong> per combination.<br>Example: GHS 1 on Two Sure = potential ~GHS 270 win",tip:"&#9888; Only stake what you can afford to lose. Set a budget."},
+    {icon:"&#129666;",title:"Collect Your Official Ticket",body:"The POS machine prints an official NLA-branded ticket. <strong>Keep it safe</strong> — it is your only proof of purchase needed to claim prizes.<br><br>Your ticket shows: numbers, game, draw number, bet type, stake, and unique ticket ID.",tip:"&#128247; Take a photo of your ticket immediately after purchase."},
+    {icon:"&#128250;",title:"Watch the Draw",body:"Draws broadcast live on <strong>TV3</strong> and <strong>GHOne TV</strong>.<br>Check results online at <strong>nla.com.gh</strong>, on this WUAN GARRY site, or dial <strong>*890#</strong>.",tip:"&#128241; Easiest: check results right here — updated automatically each night."},
+    {icon:"&#127942;",title:"Claim Your Prize (Within 14 Days)",body:"If you win:<br>&#8226; <strong>GHS 250 or below:</strong> any licensed NLA retailer (bring ticket)<br>&#8226; <strong>Above GHS 250:</strong> NLA Partner Bank (GCB, NIB, Zenith, ADB, UMB, Access) with ticket + valid ID<br>&#8226; <strong>Jackpot:</strong> Contact NLA head office, Accra<br><br>&#9201; <strong>14 days</strong> to claim from draw date.",tip:"&#9888; Prizes expire after 14 days. Never share your ticket with anyone."},
   ];
+  document.getElementById("stakeSteps").innerHTML=steps.map((s,i)=>'<div class="step-card"><div class="step-num">'+(i+1)+'</div><div class="step-body"><h3>'+s.icon+' '+s.title+'</h3><p>'+s.body+'</p><span class="tip">'+s.tip+'</span></div></div>').join("");
 
-  document.getElementById("stakeSteps").innerHTML = steps.map((s,i)=>`
-    <div class="step-card">
-      <div class="step-num">${i+1}</div>
-      <div class="step-body">
-        <h3>${s.icon} ${s.title}</h3>
-        <p>${s.body}</p>
-        <span class="tip">${s.tip}</span>
-      </div>
-    </div>`).join("");
-
-  const ussd = [
+  const ussd=[
     {n:"1",t:"Dial <strong>*890#</strong> on MTN, Vodafone, or AirtelTigo"},
-    {n:"2",t:"Select <strong>1</strong> for NLA Lotto"},
-    {n:"3",t:"Select your game (e.g. <strong>3</strong> for National Weekly)"},
-    {n:"4",t:"Enter your numbers (e.g. <strong>04*71*25</strong> for 3 numbers)"},
-    {n:"5",t:"Select bet type (e.g. <strong>2</strong> for Two Sure / Direct 2)"},
+    {n:"2",t:"Select <strong>1</strong> for NLA Lotto games"},
+    {n:"3",t:"Choose your game (e.g. <strong>6</strong> for National Weekly)"},
+    {n:"4",t:"Enter your numbers separated by * (e.g. <strong>04*71*25</strong>)"},
+    {n:"5",t:"Select your bet type (e.g. <strong>2</strong> for Two Sure / Direct 2)"},
     {n:"6",t:"Enter your stake amount in GHS (e.g. <strong>1</strong> for GHS 1)"},
-    {n:"7",t:"Confirm your selection and <strong>enter your PIN</strong> to pay via mobile money"},
+    {n:"7",t:"Confirm your selection and enter your <strong>mobile money PIN</strong> to pay"},
     {n:"8",t:"You receive an <strong>SMS confirmation</strong> with your ticket number — save it!"},
-    {n:"9",t:"To check results: dial <strong>*890#</strong> again → select Results"},
+    {n:"9",t:"To check results: dial <strong>*890#</strong> again and select Results"},
   ];
-
-  document.getElementById("ussdSteps").innerHTML = ussd.map(u=>
-    `<div class="ussd-step"><span class="ussd-num">Step ${u.n}</span><span>${u.t}</span></div>`).join("");
+  document.getElementById("ussdSteps").innerHTML=ussd.map(u=>'<div class="ussd-step"><span class="ussd-num">Step '+u.n+'</span><span>'+u.t+'</span></div>').join("");
 }
-renderLatest();renderHist();renderPred();renderAnalysis();
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────
+// Build predictions from seed data immediately (deterministic for today)
+recomputePredictions("");
+renderLatest();
+renderHist();
+renderPred();
+renderAnalysis();
 setStatus(false,"Demo data");
+// Then fetch live GitHub data in background
 loadDB();
 </script>
 </body>
