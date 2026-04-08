@@ -148,22 +148,30 @@ tbody td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middl
     <div style="overflow-x:auto"><table>
       <thead><tr><th>Bet Type</th><th>Approx. Multiplier</th><th>GHS 1 stake wins</th></tr></thead>
       <tbody>
+        <tr style="background:var(--glt)"><td colspan="3" style="font-weight:700;color:var(--gdk);font-size:12px;padding:6px 10px">&#127970; NLA (Physical retailers &amp; *890#)</td></tr>
         <tr><td>Direct 1</td><td>~3.75&times;</td><td>~GHS 3.75</td></tr>
         <tr><td>Direct 2 / Two Sure</td><td>~270&times;</td><td>~GHS 270</td></tr>
         <tr><td>Direct 3</td><td>~1,000&times;</td><td>~GHS 1,000</td></tr>
         <tr><td>Direct 4</td><td>~20,000&times;</td><td>~GHS 20,000</td></tr>
         <tr><td>Direct 5</td><td>~1,000,000&times;</td><td>~GHS 1,000,000</td></tr>
-        <tr><td>Perm 2 (5 nos.)</td><td>~27&times;</td><td>~GHS 27 per pair hit</td></tr>
-        <tr><td>Perm 3 (5 nos.)</td><td>~100&times;</td><td>~GHS 100 per triplet hit</td></tr>
+        <tr><td>Perm 2 (5 nos.)</td><td>~27&times; per pair</td><td>~GHS 27 per pair hit</td></tr>
+        <tr><td>Perm 3 (5 nos.)</td><td>~100&times; per triplet</td><td>~GHS 100 per triplet hit</td></tr>
+        <tr style="background:var(--blt)"><td colspan="3" style="font-weight:700;color:var(--blue);font-size:12px;padding:6px 10px">&#128241; 5/90 Mobile (*959#) &#8212; Official fixed odds from 590mobile.com.gh</td></tr>
+        <tr><td>Direct 1</td><td>40&times;</td><td>GHS 40.00</td></tr>
+        <tr><td>Direct 2 / Two Sure</td><td>240&times;</td><td>GHS 240.00</td></tr>
+        <tr><td>Direct 3</td><td>2,100&times;</td><td>GHS 2,100.00</td></tr>
+        <tr><td>Direct 4</td><td>6,000&times;</td><td>GHS 6,000.00</td></tr>
+        <tr><td>Direct 5</td><td>44,000&times;</td><td>GHS 44,000.00</td></tr>
+        <tr><td>Perm 2</td><td>240&times; per matching pair</td><td>GHS 240 per pair hit</td></tr>
+        <tr><td>Perm 3</td><td>2,100&times; per matching triplet</td><td>GHS 2,100 per triplet hit</td></tr>
+        <tr><td>Banker to All</td><td>4 &times; 240&times;</td><td>GHS 960.00</td></tr>
       </tbody>
     </table></div>
-    <p style="font-size:12px;color:var(--mu);margin-top:8px">&#9432; Multipliers are approximate. Actual payouts depend on NLA fixed-odds table and number of winners.</p>
+    <p style="font-size:12px;color:var(--mu);margin-top:8px">&#9432; NLA multipliers are approximate. 5/90 Mobile (590mobile.com.gh) multipliers are official and fixed &#8212; confirmed from their prize table. Minimum stake: GHS 0.15 (NLA), GHS 1.00 (5/90 Mobile).</p>
   </div>
   <div class="card">
-    <div class="ct">&#128241; Play via Phone &mdash; Dial <span style="color:var(--gold)">*890#</span></div>
-    <div style="background:var(--bg);border-radius:10px;padding:1rem">
-      <div id="ussdSteps"></div>
-    </div>
+    <div class="ct">&#128241; How to Stake via Phone &#8212; USSD Codes</div>
+    <div id="ussdSteps" style="margin-top:.5rem"></div>
   </div>
   <div class="disc"><strong>&#9888; NLA Fraud Alert:</strong> NEVER send money to anyone on social media claiming to sell winning numbers. Always buy from licensed NLA retailers or dial *890#. Official NLA: 0266087946 | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d34333b321d33313c733e3230733a35">[email&#160;protected]</a></div>
 </div>
@@ -653,30 +661,103 @@ function genPerms(){
 
 // ─── HOW TO STAKE ─────────────────────────────────────────────────────────
 function renderHowTo(){
-  const steps=[
-    {icon:"&#127970;",title:"Find a Licensed NLA Retailer",body:"Visit any NLA Point of Sale (POS) terminal near you — at shops, market stalls, and lotto kiosks across Ghana. Look for the official NLA logo. Also available at GCB, Zenith, ADB, UMB and Access Bank.",tip:"&#9989; Only buy from licensed retailers. Never from social media sellers."},
-    {icon:"&#127914;",title:"Choose Your Game",body:"Pick which game to stake on:<br>&#8226; <strong>Monday Special</strong> — Mon 8:55 PM<br>&#8226; <strong>Lucky Tuesday</strong> — Tue 8:55 PM<br>&#8226; <strong>Midweek</strong> — Wed 8:55 PM<br>&#8226; <strong>Fortune Thursday</strong> — Thu 8:55 PM<br>&#8226; <strong>Friday Bonanza</strong> — Fri 8:55 PM<br>&#8226; <strong>National Weekly</strong> — Sat 8:55 PM<br>&#8226; <strong>Sunday Aseda</strong> — Sun 8:00 PM",tip:"&#128197; Draws happen every day of the week."},
-    {icon:"&#128290;",title:"Pick Your Numbers (1 to 90)",body:"Choose 1 to 5 numbers from 1-90. More numbers = higher payout but harder to win.<br><br><strong>Easiest:</strong> 1 number (Direct 1) — pays ~3.75x<br><strong>Popular:</strong> 2 numbers (Two Sure) — pays ~270x<br><strong>Jackpot:</strong> 5 numbers (Direct 5) — pays ~1,000,000x",tip:"&#128161; Beginners: start with Two Sure for best balance of chance vs payout."},
-    {icon:"&#127922;",title:"Choose Your Bet Type",body:"Tell the retailer how to bet:<br>&#8226; <strong>Direct</strong> — ALL your numbers must appear<br>&#8226; <strong>Perm 2</strong> — ANY 2 of 3-6 numbers must drop<br>&#8226; <strong>Perm 3</strong> — ANY 3 of 4-6 numbers must drop<br><br>Example: 5 numbers on Perm 2 = if any 2 of your 5 numbers appear, you win!",tip:"&#127919; Perm bets give more combinations and a better chance of winning something."},
-    {icon:"&#128181;",title:"Place Your Stake (Min. GHS 0.15)",body:"Tell the retailer your stake amount. Minimum is <strong>GHS 0.15</strong> per combination.<br>Example: GHS 1 on Two Sure = potential ~GHS 270 win",tip:"&#9888; Only stake what you can afford to lose. Set a budget."},
-    {icon:"&#129666;",title:"Collect Your Official Ticket",body:"The POS machine prints an official NLA-branded ticket. <strong>Keep it safe</strong> — it is your only proof of purchase needed to claim prizes.<br><br>Your ticket shows: numbers, game, draw number, bet type, stake, and unique ticket ID.",tip:"&#128247; Take a photo of your ticket immediately after purchase."},
-    {icon:"&#128250;",title:"Watch the Draw",body:"Draws broadcast live on <strong>TV3</strong> and <strong>GHOne TV</strong>.<br>Check results online at <strong>nla.com.gh</strong>, on this WUAN GARRY site, or dial <strong>*890#</strong>.",tip:"&#128241; Easiest: check results right here — updated automatically each night."},
-    {icon:"&#127942;",title:"Claim Your Prize (Within 14 Days)",body:"If you win:<br>&#8226; <strong>GHS 250 or below:</strong> any licensed NLA retailer (bring ticket)<br>&#8226; <strong>Above GHS 250:</strong> NLA Partner Bank (GCB, NIB, Zenith, ADB, UMB, Access) with ticket + valid ID<br>&#8226; <strong>Jackpot:</strong> Contact NLA head office, Accra<br><br>&#9201; <strong>14 days</strong> to claim from draw date.",tip:"&#9888; Prizes expire after 14 days. Never share your ticket with anyone."},
+  // ── How to stake NLA (physical + *890#) ─────────────────────────────────────
+  const nlaSteps=[
+    {icon:"&#127970;",title:"Find a Licensed NLA Retailer",
+     body:"Visit any NLA Point of Sale (POS) terminal — at shops, market stalls, and lotto kiosks across Ghana. Look for the official NLA branding. Also available at partner banks: GCB, NIB, Zenith, ADB, UMB, Bank of Africa, HFC and Access Bank.",
+     tip:"&#9989; Only buy from licensed NLA retailers. Never buy from social media sellers."},
+    {icon:"&#127914;",title:"Choose Your Game",
+     body:"Pick which NLA game to stake on:<br>&#8226; <strong>Monday Special</strong> — every Monday 8:55 PM<br>&#8226; <strong>Lucky Tuesday</strong> — every Tuesday 8:55 PM<br>&#8226; <strong>Midweek</strong> — every Wednesday 8:55 PM<br>&#8226; <strong>Fortune Thursday</strong> — every Thursday 8:55 PM<br>&#8226; <strong>Friday Bonanza</strong> — every Friday 8:55 PM<br>&#8226; <strong>National Weekly</strong> — every Saturday 8:55 PM<br>&#8226; <strong>Sunday Aseda</strong> — every Sunday 8:00 PM",
+     tip:"&#128197; Draws happen 7 days a week. 5/90 Mobile draws daily at 7:15 PM on UTV."},
+    {icon:"&#128290;",title:"Pick Your Numbers (1 to 90)",
+     body:"Choose between 1 and 5 numbers from 1&#8211;90.<br><br><strong>Direct 1</strong> (1 number): ~GHS 3.75 per GHS 1 staked<br><strong>Two Sure / Direct 2</strong> (2 numbers): ~GHS 270 per GHS 1 staked<br><strong>Direct 3</strong> (3 numbers): ~GHS 1,000 per GHS 1 staked<br><strong>Direct 4</strong> (4 numbers): ~GHS 20,000 per GHS 1 staked<br><strong>Direct 5</strong> (5 numbers): ~GHS 1,000,000 per GHS 1 staked",
+     tip:"&#128161; Beginners: start with <strong>Two Sure</strong> (2 numbers) &#8212; best balance of chance vs payout."},
+    {icon:"&#127922;",title:"Choose Your Bet Type",
+     body:"<strong>Direct</strong> &#8212; all your chosen numbers must appear in the draw<br><strong>Perm 2</strong> &#8212; any 2 of your 3&#8211;6 numbers must drop<br><strong>Perm 3</strong> &#8212; any 3 of your 4&#8211;6 numbers must drop<br><strong>Banker</strong> &#8212; one guaranteed number combined with others<br><br>Example: Pick 5 numbers on Perm 2 &#8594; you win if <em>any</em> two of your numbers appear!",
+     tip:"&#127919; Perm bets give more combinations and a better chance of winning something."},
+    {icon:"&#128181;",title:"Place Your Stake (Minimum GHS 0.15)",
+     body:"State your stake amount to the retailer. The minimum is <strong>GHS 0.15</strong> per combination.<br>Example: GHS 1 on Two Sure = potential ~GHS 270 win",
+     tip:"&#9888; Only stake what you can afford to lose. Set a daily budget."},
+    {icon:"&#129666;",title:"Collect Your Official NLA Ticket",
+     body:"The POS terminal prints an official NLA-branded electronic ticket. <strong>Keep this safe</strong> &#8212; it is your only proof of purchase and required to claim any prize.<br>Your ticket shows: numbers, game name, draw number, bet type, stake, and unique ticket ID.",
+     tip:"&#128247; Photograph your ticket immediately after receiving it."},
+    {icon:"&#128250;",title:"Watch the Draw &amp; Check Results",
+     body:"Draws broadcast live on <strong>TV3</strong> and <strong>GHOne TV</strong>.<br>Check results on <strong>nla.com.gh/winning-numbers</strong>, on this WUAN GARRY site (auto-updated nightly), or dial <strong>*890#</strong> and select Results.",
+     tip:"&#128241; Quickest: check results right here &#8212; updated automatically every night."},
+    {icon:"&#127942;",title:"Claim Your Prize &#8212; Within 14 Days!",
+     body:"<strong>GHS 250 and below:</strong> Claim at any licensed NLA retailer (bring ticket)<br><strong>Above GHS 250:</strong> Visit an NLA Partner Bank with your ticket and valid photo ID<br><strong>Jackpot prizes:</strong> Contact NLA head office in Accra directly<br><br>&#9201; You have exactly <strong>14 days</strong> from the draw date to claim.",
+     tip:"&#9888; Prizes EXPIRE after 14 days. Never share your ticket with anyone."},
   ];
-  document.getElementById("stakeSteps").innerHTML=steps.map((s,i)=>'<div class="step-card"><div class="step-num">'+(i+1)+'</div><div class="step-body"><h3>'+s.icon+' '+s.title+'</h3><p>'+s.body+'</p><span class="tip">'+s.tip+'</span></div></div>').join("");
 
-  const ussd=[
-    {n:"1",t:"Dial <strong>*890#</strong> on MTN, Vodafone, or AirtelTigo"},
-    {n:"2",t:"Select <strong>1</strong> for NLA Lotto games"},
-    {n:"3",t:"Choose your game (e.g. <strong>6</strong> for National Weekly)"},
-    {n:"4",t:"Enter your numbers separated by * (e.g. <strong>04*71*25</strong>)"},
-    {n:"5",t:"Select your bet type (e.g. <strong>2</strong> for Two Sure / Direct 2)"},
-    {n:"6",t:"Enter your stake amount in GHS (e.g. <strong>1</strong> for GHS 1)"},
-    {n:"7",t:"Confirm your selection and enter your <strong>mobile money PIN</strong> to pay"},
-    {n:"8",t:"You receive an <strong>SMS confirmation</strong> with your ticket number — save it!"},
-    {n:"9",t:"To check results: dial <strong>*890#</strong> again and select Results"},
+  document.getElementById("stakeSteps").innerHTML=nlaSteps.map((s,i)=>
+    '<div class="step-card"><div class="step-num">'+(i+1)+'</div>'
+    +'<div class="step-body"><h3>'+s.icon+' '+s.title+'</h3>'
+    +'<p>'+s.body+'</p><span class="tip">'+s.tip+'</span></div></div>'
+  ).join("");
+
+  // ── USSD Section — TWO separate codes ────────────────────────────────────────
+  const ussdHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem" class="agrid">
+
+      <div style="background:var(--bg);border:1.5px solid var(--gold);border-radius:10px;padding:1rem">
+        <div style="font-weight:800;font-size:16px;color:var(--gold);margin-bottom:.5rem">
+          &#128241; NLA Games &#8212; Dial <span style="font-size:20px">*890#</span>
+        </div>
+        <p style="font-size:12px;color:var(--mu);margin-bottom:.8rem">
+          Monday Special, Lucky Tuesday, Midweek, Fortune Thursday, Friday Bonanza, National Weekly, Sunday Aseda<br>
+          Works on: <strong>MTN, Vodafone, AirtelTigo</strong>
+        </p>
+        <div id="ussdNLA"></div>
+      </div>
+
+      <div style="background:var(--bg);border:1.5px solid var(--blue);border-radius:10px;padding:1rem">
+        <div style="font-weight:800;font-size:16px;color:var(--blue);margin-bottom:.5rem">
+          &#128241; 5/90 Mobile &#8212; Dial <span style="font-size:20px">*959#</span>
+        </div>
+        <p style="font-size:12px;color:var(--mu);margin-bottom:.8rem">
+          Daily draws at 7:15 PM (except Sundays). Live on <strong>UTV</strong>.<br>
+          Operated by: <strong>Keed-NLA (KGL Technology)</strong><br>
+          Works on: <strong>MTN, Vodafone, AirtelTigo</strong>
+        </p>
+        <div id="ussd590"></div>
+      </div>
+
+    </div>`;
+
+  document.getElementById("ussdSteps").innerHTML = ussdHTML;
+
+  // NLA *890# steps
+  const nlaUSSD = [
+    {n:"1", t:"Dial <strong>*890#</strong> on any network"},
+    {n:"2", t:"Select your game from the menu (e.g. 1=Monday Special, 2=Lucky Tuesday, 3=Midweek, 4=Fortune Thursday, 5=Friday Bonanza, 6=National Weekly, 7=Sunday Aseda)"},
+    {n:"3", t:"Select your bet type: <strong>1</strong>=Direct 1, <strong>2</strong>=Two Sure/Direct 2, <strong>3</strong>=Direct 3, <strong>4</strong>=Direct 4, <strong>5</strong>=Direct 5, <strong>6</strong>=Perm 2, <strong>7</strong>=Perm 3"},
+    {n:"4", t:"Enter your numbers <strong>separated by spaces</strong> (e.g. <strong>04 71 25</strong> for three numbers)"},
+    {n:"5", t:"Enter your <strong>stake amount</strong> in GHS (e.g. <strong>1</strong> for GHS 1.00)"},
+    {n:"6", t:"Confirm your entry and <strong>approve via mobile money PIN</strong> to complete payment"},
+    {n:"7", t:"You receive an <strong>SMS ticket</strong> confirming your stake &#8212; save this number!"},
+    {n:"8", t:"To check results: dial <strong>*890#</strong> again &#8594; select <strong>Results</strong>"},
   ];
-  document.getElementById("ussdSteps").innerHTML=ussd.map(u=>'<div class="ussd-step"><span class="ussd-num">Step '+u.n+'</span><span>'+u.t+'</span></div>').join("");
+
+  // 5/90 Mobile *959# steps
+  const mob590USSD = [
+    {n:"1", t:"Dial <strong>*959#</strong> on any network (no internet needed)"},
+    {n:"2", t:"Select your preferred game type: <strong>1</strong>=Banker, <strong>2</strong>=Perm, <strong>3</strong>=Direct"},
+    {n:"3", t:"Enter your numbers following the prompts"},
+    {n:"4", t:"Select your bet sub-type (e.g. Direct 1, Direct 2, Direct 5, Perm 2, Perm 3)"},
+    {n:"5", t:"Enter your <strong>stake amount</strong> (minimum GHC 1, maximum GHC 200 for Perm)"},
+    {n:"6", t:"Confirm and approve payment via your <strong>mobile money account PIN</strong>"},
+    {n:"7", t:"Receive an <strong>SMS confirmation ticket</strong> with your game details &#8212; save it!"},
+    {n:"8", t:"Winnings paid directly to your <strong>mobile money wallet</strong> after draw confirmation"},
+    {n:"9", t:"Draw time: <strong>7:10 PM</strong> results announced, <strong>7:15 PM</strong> live on <strong>UTV</strong>"},
+  ];
+
+  document.getElementById("ussdNLA").innerHTML = nlaUSSD.map(u=>
+    '<div class="ussd-step"><span class="ussd-num">'+u.n+'</span><span>'+u.t+'</span></div>'
+  ).join("");
+
+  document.getElementById("ussd590").innerHTML = mob590USSD.map(u=>
+    '<div class="ussd-step"><span class="ussd-num">'+u.n+'</span><span>'+u.t+'</span></div>'
+  ).join("");
 }
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────

@@ -215,6 +215,96 @@ def dom_parse(html: str) -> list:
     return rows
 
 
+# ── 590mobile.com.gh Playwright scraper ───────────────────────────────────────
+def scrape_590mobile() -> list:
+    """
+    Scrape 590mobile.com.gh/results using Playwright.
+    The site is a React SPA; we intercept XHR/JSON responses
+    to capture draw data.
+    """
+    try:
+        from playwright.sync_api import sync_playwright, TimeoutError as PWT
+    except ImportError:
+        return []
+
+    captured = []
+
+    def on_resp(resp):
+        url = resp.url.lower()
+        # 590mobile API calls typically go to their own backend
+        if not any(k in url for k in ["590mobile","keed","draw","result","lotto","api"]):
+            return
+        if resp.status != 200: return
+        ct = resp.headers.get("content-type","")
+        if "json" not in ct: return
+        try:
+            body = resp.json()
+            if body: captured.append(body)
+        except Exception: pass
+
+    rows = []
+    log.info("Playwright → 590mobile.com.gh/results")
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True,
+            args=["--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--single-process"])
+        ctx = browser.new_context(
+            user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/123.0 Safari/537.36",
+            viewport={"width":1280,"height":800})
+        page = ctx.new_page()
+        page.on("response", on_resp)
+        try:
+            page.goto("https://www.590mobile.com.gh/results",
+                      wait_until="networkidle", timeout=45000)
+            try:
+                page.wait_for_selector("table tr td", timeout=15000)
+            except PWT: pass
+            time.sleep(2)
+        except PWT:
+            log.warning("590mobile page timeout")
+
+        # Parse intercepted JSON
+        for body in captured:
+            for rec in find_records(body):
+                r = row_from(rec)
+                if r:
+                    r["game_type"] = "5/90 Mobile"
+                    r["source"] = "590mobile.com.gh"
+                    rows.append(r)
+
+        # DOM fallback — parse the results table directly
+        if not rows:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(page.content(), "lxml")
+            # 590mobile table columns: DrawId | Draw | Date | Numbers
+            for tr in soup.select("table tr"):
+                cells = [c.get_text(" ", strip=True) for c in tr.find_all(["td","th"])]
+                if len(cells) < 4: continue
+                # Columns: DrawId, Draw(name), Date, Numbers
+                draw_id   = cells[0]
+                draw_name = cells[1]
+                date_raw  = cells[2]
+                nums_raw  = cells[3]
+                draw_date = norm_date(date_raw)
+                if not draw_date: continue
+                numbers = norm_nums(nums_raw)
+                if not numbers: continue
+                game = draw_name if draw_name and draw_name not in ("Draw","") else "5/90 Mobile"
+                rows.append({
+                    "draw_date": draw_date,
+                    "draw_time": "7:15 PM",
+                    "game_type": game,
+                    "numbers":   numbers,
+                    "draw_number": f"590M-{draw_id}" if draw_id else f"590M-{draw_date}",
+                    "source": "590mobile.com.gh"
+                })
+
+        browser.close()
+
+    log.info("590mobile: scraped %d rows", len(rows))
+    return rows
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 def main():
     DATA_FILE.parent.mkdir(exist_ok=True)
@@ -234,8 +324,10 @@ def main():
     for r in SEED:
         existing.setdefault(r["draw_number"], r)
 
-    # Scrape fresh
+    # Scrape fresh from both sources
     scraped = scrape_nla()
+    scraped += scrape_590mobile()
+    log.info("Total scraped from all sources: %d rows", len(scraped))
     new_count = 0
     for r in scraped:
         key = r["draw_number"]

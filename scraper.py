@@ -194,7 +194,119 @@ def scrape_results(db_path: str) -> int:
     conn.commit()
     conn.close()
     logging.info("Scrape complete: %d new records", new_count)
-    return new_count
+    saved_590 = scrape_590mobile(db_path)
+    return new_count + saved_590
+
+
+
+# ── 590mobile.com.gh Playwright scraper ───────────────────────────────────────
+def scrape_590mobile(db_path: str) -> int:
+    """Scrape draw results from 590mobile.com.gh (Keed-NLA 5/90 daily game)."""
+    try:
+        from playwright.sync_api import sync_playwright, TimeoutError as PWT
+    except ImportError:
+        logger.error("Playwright not installed")
+        return 0
+
+    captured = []
+    def on_resp(resp):
+        url = resp.url.lower()
+        if not any(k in url for k in ["590mobile","keed","draw","result","api","/lotto"]):
+            return
+        if resp.status != 200: return
+        if "json" not in resp.headers.get("content-type",""): return
+        try:
+            b = resp.json()
+            if b: captured.append(b)
+        except Exception: pass
+
+    rows = []
+    logger.info("Playwright → 590mobile.com.gh/results")
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True,
+            args=["--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--single-process"])
+        ctx = browser.new_context(
+            user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/123.0 Safari/537.36",
+            viewport={"width":1280,"height":800})
+        page = ctx.new_page()
+        page.on("response", on_resp)
+        try:
+            page.goto("https://www.590mobile.com.gh/results",
+                      wait_until="networkidle", timeout=45000)
+            try: page.wait_for_selector("table tr td", timeout=15000)
+            except PWT: pass
+            import time as _t; _t.sleep(2)
+        except PWT:
+            logger.warning("590mobile page timeout")
+
+        # JSON first
+        for body in captured:
+            for rec in _find_records_590(body):
+                r = _extract_row_590(rec)
+                if r: rows.append(r)
+
+        # DOM fallback
+        if not rows:
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(page.content(), "lxml")
+                for tr in soup.select("table tr"):
+                    cells = [c.get_text(" ",strip=True) for c in tr.find_all(["td","th"])]
+                    if len(cells) < 4: continue
+                    draw_date = _date(cells[2])
+                    if not draw_date: continue
+                    numbers = _nums(cells[3])
+                    if not numbers: continue
+                    game = cells[1] if cells[1] not in ("","Draw","draw") else "5/90 Mobile"
+                    rows.append((draw_date, "7:15 PM", game, numbers,
+                                 f"590M-{cells[0]}", "590mobile.com.gh"))
+            except Exception as e:
+                logger.warning("590mobile DOM: %s", e)
+
+        browser.close()
+
+    conn = sqlite3.connect(db_path)
+    n = 0
+    for r in rows:
+        conn.execute(
+            "INSERT OR IGNORE INTO results "
+            "(draw_date,draw_time,game_type,numbers,draw_number,source) "
+            "VALUES (?,?,?,?,?,?)", r)
+        n += conn.execute("SELECT changes()").fetchone()[0]
+    conn.commit(); conn.close()
+    logger.info("590mobile: %d new rows saved", n)
+    return n
+
+
+def _find_records_590(obj, depth=0):
+    KEYS = {"drawDate","draw_date","date","drawName","game","winningNumbers",
+            "winning_numbers","numbers","balls","name","results","id"}
+    if depth > 8: return []
+    if isinstance(obj, list) and obj and isinstance(obj[0], dict):
+        if set(obj[0].keys()) & KEYS: return obj
+        out = []
+        for x in obj: out.extend(_find_records_590(x, depth+1))
+        return out
+    if isinstance(obj, dict):
+        for v in obj.values():
+            found = _find_records_590(v, depth+1)
+            if found: return found
+    return []
+
+
+def _extract_row_590(rec: dict):
+    date_raw = (rec.get("drawDate") or rec.get("draw_date") or
+                rec.get("date") or rec.get("Date") or "")
+    draw_date = _date(str(date_raw)) if date_raw else None
+    if not draw_date: return None
+    nums_raw = (rec.get("winningNumbers") or rec.get("winning_numbers") or
+                rec.get("numbers") or rec.get("balls") or "")
+    numbers = _nums(nums_raw)
+    if not numbers: return None
+    game = str(rec.get("drawName") or rec.get("gameName") or rec.get("game") or "5/90 Mobile")
+    draw_number = str(rec.get("drawNumber") or rec.get("id") or f"590M-{draw_date}")
+    return (draw_date, "7:15 PM", game, numbers, f"590M-{draw_number}", "590mobile.com.gh")
 
 
 if __name__ == "__main__":
